@@ -1,0 +1,35 @@
+ESTRUTURA DE PASTAS
+
+expense_tracker/
+│
+├── main.py                # Arquivo principal que roda o sistema
+│
+├── models/                # Pastas de Modelos (Classes POO)
+│   ├── __init__.py
+│   ├── transacao.py        # Classe Transacao (Receita/Despesa)
+│   ├── forma_pagamento.py  # Classe FormaPagamento (base) + subclasses Credito, Debito, Dinheiro
+│
+├── database/              # Pastas de Banco de Dados
+│   ├── __init__.py
+│   ├── db.py               # Conexão com o SQLite (ou outro)
+│   ├── models.sql          # Script SQL para criar tabelas
+│   ├── transacao_dao.py    # Data Access Object para Transacoes
+│   ├── forma_pagamento_dao.py  # DAO para Formas de Pagamento
+│
+├── services/              # Pastas de Serviços (Regras de Negócio)
+│   ├── __init__.py
+│   ├── transacao_service.py   # Lógica para criar, listar, excluir transações
+│   ├── forma_pagamento_service.py # Lógica para formas de pagamento
+│
+├── utils/                 # Utilitários (formatadores, validadores, etc.)
+│   ├── __init__.py
+│   ├── formatador.py       # Formatadores de valores, datas, etc.
+│   ├── validador.py        # Validação de entradas
+│
+├── tests/                 # Pasta de testes
+│   ├── __init__.py
+│   ├── test_transacao.py
+│   ├── test_forma_pagamento.py
+│
+├── README.md               # Explicação do projeto
+└── requirements.txt        # Dependências, caso use alguma lib externa
