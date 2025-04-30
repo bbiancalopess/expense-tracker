@@ -9,8 +9,8 @@ def up():
         balance FLOAT DEFAULT 0.0,
         credit_limit FLOAT DEFAULT 0.0,
         available_limit FLOAT DEFAULT 0.0,
-        dia_fechamento TIMESTAMP,
-        dia_vencimento TIMESTAMP
+        closing_date DATE,
+        due_date DATE
     );
 
     -- Criação da tabela de categorias
