@@ -2,7 +2,7 @@ import sqlite3
 
 
 class DatabaseManager:
-    def __init__(self, db_file="expense-tracker-dev.db"):
+    def __init__(self, db_file="database/expense-tracker-dev.db"):
         self.db_file = db_file
 
     def get_connection(self):
@@ -50,3 +50,14 @@ class DatabaseManager:
         except sqlite3.Error as err:
             print(f"[DELETE ERROR] {err}")
             return 0
+
+    def execute_script(self, script: str) -> bool:
+        """Executes a SQL script with multiple commands"""
+        try:
+            with self.get_connection() as conn:
+                conn.executescript(script)
+                conn.commit()
+                return True
+        except sqlite3.Error as err:
+            print(f"[SCRIPT ERROR] {err}")
+            return False
