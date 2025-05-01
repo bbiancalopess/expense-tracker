@@ -11,7 +11,7 @@ class Transaction(ABC):
         self.payment_method = payment_method
 
     @abstractmethod
-    def tipo(self):
+    def type(self):
         pass
 
     def to_dict(self):
