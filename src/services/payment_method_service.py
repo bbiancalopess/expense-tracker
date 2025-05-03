@@ -1,5 +1,5 @@
-from repositories.payment_method_repository import PaymentMethodRepository
-from models.payment_method.payment_method import PaymentMethod
+from src.repositories.payment_method_repository import PaymentMethodRepository
+from src.models.payment_method.payment_method import PaymentMethod
 from typing import Optional
 
 

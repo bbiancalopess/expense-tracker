@@ -1,4 +1,4 @@
-from models.transaction.transaction import Transaction
+from src.models.transaction.transaction import Transaction
 from datetime import date
 
 

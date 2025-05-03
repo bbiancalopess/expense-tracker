@@ -1,5 +1,5 @@
-from models.payment_method.credit import Credit
-from models.payment_method.debit import Debit
+from src.models.payment_method.credit import Credit
+from src.models.payment_method.debit import Debit
 
 
 def test_full_payment_service_workflow(service):

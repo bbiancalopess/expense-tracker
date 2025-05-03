@@ -2,7 +2,7 @@ import importlib
 from pathlib import Path
 from typing import Optional
 import inspect
-from database.db_manager import DatabaseManager
+from src.database.db_manager import DatabaseManager
 
 
 class MigrationManager:

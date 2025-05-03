@@ -1,17 +1,17 @@
 import pytest
 import sqlite3
-from database.db_manager import DatabaseManager
-from repositories.payment_method_repository import PaymentMethodRepository
-from services.payment_method_service import PaymentMethodService
+from src.database.db_manager import DatabaseManager
+from src.repositories.payment_method_repository import PaymentMethodRepository
+from src.services.payment_method_service import PaymentMethodService
 
 
 @pytest.fixture
 def test_db():
     # Configuração do banco de teste
-    db = DatabaseManager("database/expense-tracker-test.db")
+    db = DatabaseManager("src/database/expense-tracker-test.db")
 
     # Cria a tabela (se não existir)
-    conn = sqlite3.connect("database/expense-tracker-test.db")
+    conn = sqlite3.connect("src/database/expense-tracker-test.db")
     cursor = conn.cursor()
     cursor.execute(
         """
@@ -34,7 +34,7 @@ def test_db():
     yield db  # Entrega o db para o teste
 
     # (Opcional) Limpeza após o teste
-    conn = sqlite3.connect("database/expense-tracker-test.db")
+    conn = sqlite3.connect("src/database/expense-tracker-test.db")
     conn.cursor().execute("DELETE FROM payment_methods")
     conn.commit()
     conn.close()

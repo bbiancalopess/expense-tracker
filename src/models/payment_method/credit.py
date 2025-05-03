@@ -1,4 +1,4 @@
-from models.payment_method.payment_method import PaymentMethod, PaymentType
+from src.models.payment_method.payment_method import PaymentMethod, PaymentType
 from typing import Optional
 
 

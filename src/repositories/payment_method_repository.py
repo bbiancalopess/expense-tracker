@@ -1,8 +1,8 @@
 from typing import Optional
-from database.db_manager import DatabaseManager
-from models.payment_method.payment_method import PaymentMethod
-from models.payment_method.credit import Credit
-from models.payment_method.debit import Debit
+from src.database.db_manager import DatabaseManager
+from src.models.payment_method.payment_method import PaymentMethod
+from src.models.payment_method.credit import Credit
+from src.models.payment_method.debit import Debit
 
 
 class PaymentMethodRepository:

@@ -4,7 +4,7 @@ Script to manage the system's migrations
 """
 
 import argparse
-from database.migration_manager import MigrationManager
+from src.database.migration_manager import MigrationManager
 
 
 def main():
