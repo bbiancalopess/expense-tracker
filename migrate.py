@@ -8,13 +8,22 @@ from database.migration_manager import MigrationManager
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Migrations Manager')
+    parser = argparse.ArgumentParser(description="Migrations Manager")
 
     # Possible arguments
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("--up-all", action="store_true", help="Applies all pending migrations")
-    group.add_argument("--up", type=str, metavar="MIGRATION", help="Applies an specific migration (ex.: 0001_initial)")
-    group.add_argument("--down", type=str, metavar="MIGRATION", help="Reverts an specific migration")
+    group.add_argument(
+        "--up-all", action="store_true", help="Applies all pending migrations"
+    )
+    group.add_argument(
+        "--up",
+        type=str,
+        metavar="MIGRATION",
+        help="Applies an specific migration (ex.: 0001_initial)",
+    )
+    group.add_argument(
+        "--down", type=str, metavar="MIGRATION", help="Reverts an specific migration"
+    )
     group.add_argument("--status", action="store_true", help="Shows migrations status")
 
     args = parser.parse_args()

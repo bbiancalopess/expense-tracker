@@ -1,8 +1,17 @@
 from abc import ABC, abstractmethod
 from datetime import date
 
+
 class Transaction(ABC):
-    def __init__(self, value: float, date: date, description: str, category: str, payment_method: str, id: int = None):
+    def __init__(
+        self,
+        value: float,
+        date: date,
+        description: str,
+        category: str,
+        payment_method: str,
+        id: int = None,
+    ):
         self.id = id
         self.value = value
         self.data = date
@@ -22,10 +31,8 @@ class Transaction(ABC):
             "description": self.description,
             "category": self.category,
             "payment_method": self.payment_method,
-            "type": self.type()
+            "type": self.type(),
         }
 
     def __str__(self):
         return f"[{self.type()}] R${self.value:.2f} - {self.category} - {self.date} ({self.description})"
-
-    
