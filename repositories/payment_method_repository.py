@@ -9,18 +9,33 @@ class PaymentMethodRepository:
     def __init__(self, db: DatabaseManager):
         self.db = db
 
-    def _create_payment_from_dict(self, data: dict) -> PaymentMethod:
-        if not data:
+    def _create_payment_from_dict(self, data: dict) -> Optional[PaymentMethod]:
+        if not data or not data.get("name") or not data.get("type"):
             return None
 
-        payment_type = data.get("type")
+        try:
+            payment_type = data.get("type")
 
-        if payment_type == "CREDIT":
-            return Credit(data)
-        elif payment_type == "DEBIT":
-            return Debit(data)
+            common_params = {
+                "id": data.get("id"),
+                "name": data.get("name"),
+                "balance": data.get("balance", 0.0),
+            }
 
-        return None
+            if payment_type == "CREDIT":
+                return Credit(
+                    **common_params,
+                    credit_limit=data.get("credit_limit", 0.0),
+                    closing_date=data.get("closing_date"),
+                    due_date=data.get("due_date"),
+                )
+            elif payment_type == "DEBIT":
+                return Debit(**common_params)
+
+            return None
+        except Exception as err:
+            print(f"Error creating payment from dict: {err}")
+            return None
 
     def get_all(self) -> list[PaymentMethod]:
         try:
@@ -28,8 +43,8 @@ class PaymentMethodRepository:
             results = self.db.select(query)
             if not results:
                 return []
-            
-            return [self._create_payment_from_dict(dict(row)) for row in results]
+
+            return [self._create_payment_from_dict(row) for row in results]
         except Exception as e:
             print(f"Error getting all payment methods: {e}")
             return []
@@ -37,11 +52,11 @@ class PaymentMethodRepository:
     def get_by_id(self, payment_id: int) -> Optional[PaymentMethod]:
         try:
             query = "SELECT * FROM payment_methods WHERE id = ?;"
-            result = self.db.select(query, (payment_id))
+            result = self.db.select_one(query, (payment_id,))
             if not result:
                 return None
 
-            return self._create_payment_from_dict(dict(result[0])) if result else None
+            return self._create_payment_from_dict(result)
         except Exception as e:
             print(f"Error getting payment method by ID {payment_id}: {e}")
             return None

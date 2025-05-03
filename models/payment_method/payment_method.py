@@ -1,13 +1,12 @@
 # Abstract class
 from abc import ABC, abstractmethod
-from enum import Enum, auto
+from enum import Enum
 from typing import Optional
 
 
 class PaymentType(Enum):
-    CREDIT = auto()
-    DEBIT = auto()
-    CASH = auto()
+    CREDIT = "CREDIT"
+    DEBIT = "DEBIT"
 
 
 class PaymentMethod(ABC):

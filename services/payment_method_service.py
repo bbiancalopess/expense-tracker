@@ -22,13 +22,13 @@ class PaymentMethodService:
         try:
             return self.repo.get_all()
         except Exception as e:
-            print(f"Error getting all payment methods: {e}")
+            print(f"Error getting all payment methods service: {e}")
             return []
 
     def get_payment_by_id(self, payment_id: int) -> Optional[PaymentMethod]:
         if payment_id <= 0:
             return None
-            
+
         try:
             return self.repo.get_by_id(payment_id)
         except Exception as e:
@@ -45,7 +45,7 @@ class PaymentMethodService:
     def delete_payment(self, payment_id: int) -> bool:
         if payment_id <= 0:
             return False
-            
+
         try:
             return self.repo.delete(payment_id)
         except Exception as e:

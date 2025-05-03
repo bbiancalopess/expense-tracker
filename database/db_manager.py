@@ -1,4 +1,5 @@
 import sqlite3
+from typing import Optional
 
 
 class DatabaseManager:
@@ -6,9 +7,20 @@ class DatabaseManager:
         self.db_file = db_file
 
     def get_connection(self):
-        return sqlite3.connect(self.db_file)
+        """Returns a database connection"""
+        conn = sqlite3.connect(self.db_file)
+        # Configure to return rows as dicts
+        conn.row_factory = sqlite3.Row
+        return conn
 
-    def insert(self, query, params) -> int | None:
+    def __get_columns(self, cursor: sqlite3.Cursor) -> list[str]:
+        """Returns the cursor's columns names"""
+        return (
+            [column[0] for column in cursor.description] if cursor.description else []
+        )
+
+    def insert(self, query: str, params: tuple) -> int | None:
+        """Executes an insertion e returns the generated id"""
         try:
             with self.get_connection() as conn:
                 cursor = conn.cursor()
@@ -19,17 +31,33 @@ class DatabaseManager:
             print(f"[INSERT ERROR] {err}")
             return None
 
-    def select(self, query, params=()) -> list[any]:
+    def select(self, query: str, params: tuple = ()) -> list[any]:
+        """Executes a search and returns its results"""
         try:
             with self.get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(query, params)
-                return cursor.fetchall()
+                columns = self.__get_columns(cursor=cursor)
+                return [dict(zip(columns, row)) for row in cursor.fetchall()]
         except sqlite3.Error as err:
             print(f"[SELECT ERROR] {err}")
             return []
 
-    def update(self, query, params) -> int:
+    def select_one(self, query: str, params: tuple = ()) -> Optional[dict[str, any]]:
+        """Executes a search and retruns only one result"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(query, params)
+                columns = self.__get_columns(cursor)
+                row = cursor.fetchone()
+                return dict(zip(columns, row)) if row else None
+        except sqlite3.Error as err:
+            print(f"[SELECT ERROR] {err}")
+            return None
+
+    def update(self, query: str, params: tuple) -> int:
+        """Executes an update and returns the affected rows number"""
         try:
             with self.get_connection() as conn:
                 cursor = conn.cursor()
@@ -40,7 +68,8 @@ class DatabaseManager:
             print(f"[UPDATE ERROR] {err}")
             return 0
 
-    def delete(self, query, params) -> int:
+    def delete(self, query: str, params: tuple) -> int:
+        """Executes an exclusion and returns the affected rows number"""
         try:
             with self.get_connection() as conn:
                 cursor = conn.cursor()
