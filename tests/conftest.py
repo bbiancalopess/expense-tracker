@@ -1,0 +1,53 @@
+import pytest
+import sqlite3
+from src.database.db_manager import DatabaseManager
+from src.repositories.payment_method_repository import PaymentMethodRepository
+from src.services.payment_method_service import PaymentMethodService
+
+
+@pytest.fixture
+def test_db():
+    # Configuração do banco de teste
+    db = DatabaseManager("src/database/expense-tracker-test.db")
+
+    # Cria a tabela (se não existir)
+    conn = sqlite3.connect("src/database/expense-tracker-test.db")
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS payment_methods (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            type TEXT CHECK(type IN ('CREDIT', 'DEBIT')) NOT NULL,
+            balance FLOAT DEFAULT 0.0,
+            credit_limit FLOAT,
+            closing_day INTEGER,
+            due_day INTEGER
+        )
+    """
+    )
+    # Limpa dados anteriores
+    cursor.execute("DELETE FROM payment_methods")
+    conn.commit()
+    conn.close()
+
+    yield db  # Entrega o db para o teste
+
+    # (Opcional) Limpeza após o teste
+    conn = sqlite3.connect("src/database/expense-tracker-test.db")
+    conn.cursor().execute("DELETE FROM payment_methods")
+    conn.commit()
+    conn.close()
+
+
+@pytest.fixture
+def repo(mock_db):
+    from repositories.payment_method_repository import PaymentMethodRepository
+
+    return PaymentMethodRepository(test_db)
+
+
+@pytest.fixture
+def service(test_db):
+    repo = PaymentMethodRepository(test_db)
+    return PaymentMethodService(repo)

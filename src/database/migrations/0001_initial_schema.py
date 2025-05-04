@@ -8,9 +8,8 @@ def up():
         type TEXT CHECK(type IN ('credito', 'debito', 'dinheiro')) NOT NULL,
         balance FLOAT DEFAULT 0.0,
         credit_limit FLOAT DEFAULT 0.0,
-        available_limit FLOAT DEFAULT 0.0,
-        closing_date DATE,
-        due_date DATE
+        closing_day INTEGER,
+        due_day INTEGER
     );
 
     -- Criação da tabela de categorias

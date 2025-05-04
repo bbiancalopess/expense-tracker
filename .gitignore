@@ -173,4 +173,5 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-*.expense-tracker-dev.db
+src/database/expense-tracker-dev.db
+src/database/expense-tracker-test.db
