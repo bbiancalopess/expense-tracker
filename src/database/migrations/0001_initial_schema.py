@@ -5,9 +5,9 @@ def up():
     CREATE TABLE payment_methods (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
-        type TEXT CHECK(type IN ('credito', 'debito', 'dinheiro')) NOT NULL,
+        type TEXT CHECK(type IN ('CREDIT', 'DEBIT')) NOT NULL,
         balance FLOAT DEFAULT 0.0,
-        credit_limit FLOAT DEFAULT 0.0,
+        credit_limit FLOAT,
         closing_day INTEGER,
         due_day INTEGER
     );
