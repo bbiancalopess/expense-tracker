@@ -9,13 +9,13 @@ class Credit(PaymentMethod):
         name: str,
         balance: float = 0.0,
         credit_limit: float = 0.0,
-        closing_date: int = None,
-        due_date: int = None,
+        closing_day: int = None,
+        due_day: int = None,
     ):
         super().__init__(id, name, balance)
         self.credit_limit = credit_limit
-        self.closing_date = closing_date
-        self.due_date = due_date
+        self.closing_day = closing_day
+        self.due_day = due_day
 
     @property
     def payment_type(self) -> PaymentType:
@@ -36,8 +36,8 @@ class Credit(PaymentMethod):
         data.update(
             {
                 "credit_limit": self.credit_limit,
-                "closing_date": self.closing_date,
-                "due_date": self.due_date,
+                "closing_day": self.closing_day,
+                "due_day": self.due_day,
             }
         )
         return data
@@ -49,6 +49,6 @@ class Credit(PaymentMethod):
             name=data.get("name", ""),
             balance=data.get("balance", 0),
             credit_limit=data.get("credit_limit", 0),
-            closing_date=data.get("closing_date"),
-            due_date=data.get("due_date"),
+            closing_day=data.get("closing_day"),
+            due_day=data.get("due_day"),
         )

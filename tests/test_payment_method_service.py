@@ -11,8 +11,8 @@ def test_full_payment_service_workflow(service):
         name="Cartão Inter",
         balance=0,
         credit_limit=5000,
-        closing_date=10,
-        due_date=20,
+        closing_day=10,
+        due_day=20,
     )
     credit_id = service.add_payment_method(credit_payment).id
     assert credit_id is not None

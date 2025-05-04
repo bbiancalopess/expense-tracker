@@ -18,11 +18,11 @@ def test_db():
         CREATE TABLE IF NOT EXISTS payment_methods (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            balance REAL NOT NULL,
-            type TEXT NOT NULL,
-            credit_limit REAL,
-            closing_date TEXT,
-            due_date TEXT
+            type TEXT CHECK(type IN ('CREDIT', 'DEBIT')) NOT NULL,
+            balance FLOAT DEFAULT 0.0,
+            credit_limit FLOAT,
+            closing_day INTEGER,
+            due_day INTEGER
         )
     """
     )

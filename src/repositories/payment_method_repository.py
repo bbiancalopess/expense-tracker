@@ -26,8 +26,8 @@ class PaymentMethodRepository:
                 return Credit(
                     **common_params,
                     credit_limit=data.get("credit_limit", 0.0),
-                    closing_date=data.get("closing_date"),
-                    due_date=data.get("due_date"),
+                    closing_day=data.get("closing_day"),
+                    due_day=data.get("due_day"),
                 )
             elif payment_type == "DEBIT":
                 return Debit(**common_params)
@@ -72,7 +72,7 @@ class PaymentMethodRepository:
                 query = """
                     UPDATE payment_methods SET
                     name = ?, balance = ?, type = ?,
-                    credit_limit = ?, closing_date = ?, due_date = ?
+                    credit_limit = ?, closing_day = ?, due_day = ?
                     WHERE id = ?
                 """
                 params = (
@@ -80,8 +80,8 @@ class PaymentMethodRepository:
                     data["balance"],
                     data["type"],
                     data.get("credit_limit", 0),
-                    data.get("closing_date"),
-                    data.get("due_date"),
+                    data.get("closing_day"),
+                    data.get("due_day"),
                     data["id"],
                 )
                 rows_affected = self.db.update(query, params)
@@ -89,7 +89,7 @@ class PaymentMethodRepository:
             else:
                 query = """
                     INSERT INTO payment_methods
-                    (name, balance, type, credit_limit, closing_date, due_date)
+                    (name, balance, type, credit_limit, closing_day, due_day)
                     VALUES (?, ?, ?, ?, ?, ?)
                 """
                 params = (
@@ -97,8 +97,8 @@ class PaymentMethodRepository:
                     data["balance"],
                     data["type"],
                     data.get("credit_limit", 0),
-                    data.get("closing_date"),
-                    data.get("due_date"),
+                    data.get("closing_day"),
+                    data.get("due_day"),
                 )
                 return self.db.insert(query, params)
         except Exception as e:
