@@ -24,9 +24,9 @@ def up():
         amount FLOAT NOT NULL,
         description TEXT,
         date TIMESTAMP NOT NULL,
-        type TEXT CHECK(type IN ('income', 'expense')) NOT NULL,
+        type TEXT CHECK(type IN ('INCOME', 'EXPENSE')) NOT NULL,
         current_installment INTEGER DEFAULT 1,
-        installment_amount INTEGER DEFAULT 1,
+        total_installments INTEGER DEFAULT 1,
         category_id INTEGER,
         payment_method_id INTEGER,
         FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id) ON DELETE SET NULL
