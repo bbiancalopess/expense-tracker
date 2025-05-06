@@ -1,38 +1,46 @@
 from abc import ABC, abstractmethod
-from datetime import date
+from datetime import datetime
+from enum import Enum
+from typing import Optional
+from src.models.payment_method.payment_method import PaymentMethod
+
+
+class TransactionType(Enum):
+    INCOME = "INCOME"
+    EXPENSE = "EXPENSE"
 
 
 class Transaction(ABC):
     def __init__(
         self,
-        value: float,
-        date: date,
-        description: str,
-        category: str,
-        payment_method: str,
-        id: int = None,
+        id: Optional[int] = None,
+        amount: float = 0.0,
+        description: str = "",
+        date: Optional[datetime] = None,
+        payment_method: Optional[PaymentMethod] = None,
     ):
+        if amount <= 0:
+            raise ValueError("Amount must be positive")
+
         self.id = id
-        self.value = value
-        self.data = date
+        self.amount = amount
         self.description = description
-        self.category = category
+        self.date = date or datetime.now()
         self.payment_method = payment_method
 
+    @property
     @abstractmethod
-    def type(self):
+    def transaction_type(self) -> TransactionType:
         pass
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, any]:
         return {
             "id": self.id,
-            "value": self.value,
-            "date": self.date.isoformat(),
+            "amount": self.amount,
             "description": self.description,
-            "category": self.category,
-            "payment_method": self.payment_method,
-            "type": self.type(),
+            "date": self.date.isoformat(),
+            "payment_method_id": (
+                self.payment_method.id if self.payment_method else None
+            ),
+            "type": self.transaction_type.value,
         }
-
-    def __str__(self):
-        return f"[{self.type()}] R${self.value:.2f} - {self.category} - {self.date} ({self.description})"
