@@ -20,8 +20,8 @@ class AddTransactionWindow(tk.Toplevel):
             "light_blue": "#bfdbf7",
             "light_gray": "#e1e5f2",
             "white": "#ffffff",
-            "dark_red": "#9b2226", # botão cancelar ?
-            "medium_red": "#ae2012", # botão cancelar ?
+            "dark_red": "#9b2226", 
+            "medium_red": "#ae2012",
         }
         
         self.configure(bg=self.colors["light_gray"])
@@ -145,7 +145,13 @@ class AddTransactionWindow(tk.Toplevel):
         
         # Valor
         ttk.Label(parent, text="Valor *").pack(anchor="w", pady=(0, 5))
-        self.entry_value = ttk.Entry(parent, font=("Segoe UI", 10))
+        vcmd = (self.register(self.validate_numeric_input), '%P')
+        self.entry_value = ttk.Entry(
+            parent, 
+            font=("Segoe UI", 10),
+            validate="key",
+            validatecommand=vcmd
+        )
         self.entry_value.pack(fill="x", pady=(0, 15))
         
         # Descrição
@@ -239,6 +245,19 @@ class AddTransactionWindow(tk.Toplevel):
             self.show_installments_field()
         else:
             self.hide_installments_field()
+        
+    def validate_numeric_input(self, new_text):
+        """Permite apenas números, ponto ou vírgula decimal"""
+        if not new_text:  # Permite campo vazio (para poder apagar)
+            return True
+        # Verifica se o texto é um número válido (com ponto ou vírgula decimal)
+        try:
+            # Substitui vírgula por ponto para validação
+            value_str = new_text.replace(',', '.')
+            float(value_str)
+            return True
+        except ValueError:
+            return False 
     
     def save_transaction(self):
         """Valida e salva a transação"""
@@ -252,8 +271,16 @@ class AddTransactionWindow(tk.Toplevel):
         
         # Validação
         errors = []
-        if not value or not value.replace(',', '').replace('.', '').isdigit():
-            errors.append("Valor inválido")
+        value_str = self.entry_value.get()
+        if not value_str:
+            errors.append("Valor não pode estar vazio")
+        else:
+            try:
+                value = float(value_str.replace(',', '.'))
+                if value <= 0:
+                    errors.append("Valor deve ser positivo")
+            except ValueError:
+                errors.append("Valor inválido (use números com . ou , para decimais)")
         if not category:
             errors.append("Selecione uma categoria")
         if not payment_method:
@@ -278,7 +305,7 @@ class AddTransactionWindow(tk.Toplevel):
         transaction_data = {
             "type": transaction_type,
             "date": date.strftime("%d/%m/%Y"),
-            "value": float(value.replace(',', '.')),
+            "value": value,
             "description": description,
             "payment_method": payment_method,
             "category": category,
