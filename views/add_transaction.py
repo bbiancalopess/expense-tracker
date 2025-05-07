@@ -19,7 +19,9 @@ class AddTransactionWindow(tk.Toplevel):
             "medium_blue": "#1f7a8c",
             "light_blue": "#bfdbf7",
             "light_gray": "#e1e5f2",
-            "white": "#ffffff"
+            "white": "#ffffff",
+            "dark_red": "#9b2226", # botão cancelar ?
+            "medium_red": "#ae2012", # botão cancelar ?
         }
         
         self.configure(bg=self.colors["light_gray"])
@@ -50,17 +52,17 @@ class AddTransactionWindow(tk.Toplevel):
         title_label.pack(pady=(0, 20))
         
         # Frame do formulário com scrollbar
-        form_frame = tk.Frame(main_frame, bg=self.colors["white"], padx=20, pady=20)
-        form_frame.pack(fill="both", expand=True)
+        self.form_frame = tk.Frame(main_frame, bg=self.colors["white"], padx=20, pady=20)
+        self.form_frame.pack(fill="both", expand=True)
         
         # Configurar estilo
         self.configure_styles()
         
         # Campos do formulário
-        self.create_form_fields(form_frame)
+        self.create_form_fields(self.form_frame)
         
         # Frame dos botões
-        button_frame = tk.Frame(form_frame, bg=self.colors["white"])
+        button_frame = tk.Frame(main_frame, bg=self.colors["light_gray"])
         button_frame.pack(fill="x", pady=(20, 0))
         
         # Botões
@@ -75,7 +77,7 @@ class AddTransactionWindow(tk.Toplevel):
         cancel_button = ttk.Button(
             button_frame,
             text="Cancelar",
-            style="Blue.TButton",
+            style="Red.TButton",
             command=self.destroy
         )
         cancel_button.pack(side="right", padx=5)
@@ -103,6 +105,15 @@ class AddTransactionWindow(tk.Toplevel):
         
         style.map("Blue.TButton",
                 background=[("active", self.colors["dark_blue"])])
+
+        style.configure("Red.TButton",
+              font=("Segoe UI", 10, "bold"),
+              background=self.colors["medium_red"],
+              foreground=self.colors["white"],
+              padding=10)
+
+        style.map("Red.TButton",
+                background=[("active", self.colors["dark_red"])])
     
     def create_form_fields(self, parent):
         """Cria todos os campos do formulário"""
@@ -117,7 +128,6 @@ class AddTransactionWindow(tk.Toplevel):
             font=("Segoe UI", 10),
             state="readonly"
         )
-        self.transaction_types.current(0)  # Seleciona o primeiro item por padrão
         self.transaction_types.pack(fill="x", pady=(0, 15))
         self.transaction_types.bind("<<ComboboxSelected>>", self.on_transaction_type_change)
 
