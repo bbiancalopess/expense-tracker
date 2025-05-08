@@ -11,7 +11,7 @@ class PaymentMethodService:
         try:
             payment_id = self.repo.save(payment)
             if payment_id:
-                payment.id = payment_id
+                payment._id = payment_id
                 return payment
             return None
         except Exception as e:
@@ -39,7 +39,7 @@ class PaymentMethodService:
         try:
             return self.repo.save(payment) is not None
         except Exception as e:
-            print(f"Error updating payment method {payment.id}: {e}")
+            print(f"Error updating payment method {payment._id}: {e}")
             return False
 
     def delete_payment(self, payment_id: int) -> bool:

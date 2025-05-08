@@ -32,3 +32,19 @@ class Income(Transaction):
             date=datetime.fromisoformat(data["date"]) if "date" in data else None,
             payment_method=data.get("payment_method"),
         )
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def amount(self):
+        return self._amount
+
+    @property
+    def payment_method(self):
+        return self._payment_method
+
+    @property
+    def description(self):
+        return self._description

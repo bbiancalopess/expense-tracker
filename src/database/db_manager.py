@@ -4,11 +4,11 @@ from typing import Optional
 
 class DatabaseManager:
     def __init__(self, db_file="src/database/expense-tracker-dev.db"):
-        self.db_file = db_file
+        self._db_file = db_file
 
-    def get_connection(self):
+    def __get_connection(self):
         """Returns a database connection"""
-        conn = sqlite3.connect(self.db_file)
+        conn = sqlite3.connect(self._db_file)
         # Configure to return rows as dicts
         conn.row_factory = sqlite3.Row
         return conn
@@ -22,7 +22,7 @@ class DatabaseManager:
     def insert(self, query: str, params: tuple) -> int | None:
         """Executes an insertion e returns the generated id"""
         try:
-            with self.get_connection() as conn:
+            with self.__get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(query, params)
                 conn.commit()
@@ -34,7 +34,7 @@ class DatabaseManager:
     def select(self, query: str, params: tuple = ()) -> list[any]:
         """Executes a search and returns its results"""
         try:
-            with self.get_connection() as conn:
+            with self.__get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(query, params)
                 columns = self.__get_columns(cursor=cursor)
@@ -46,7 +46,7 @@ class DatabaseManager:
     def select_one(self, query: str, params: tuple = ()) -> Optional[dict[str, any]]:
         """Executes a search and retruns only one result"""
         try:
-            with self.get_connection() as conn:
+            with self.__get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(query, params)
                 columns = self.__get_columns(cursor)
@@ -59,7 +59,7 @@ class DatabaseManager:
     def update(self, query: str, params: tuple) -> int:
         """Executes an update and returns the affected rows number"""
         try:
-            with self.get_connection() as conn:
+            with self.__get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(query, params)
                 conn.commit()
@@ -71,7 +71,7 @@ class DatabaseManager:
     def delete(self, query: str, params: tuple) -> int:
         """Executes an exclusion and returns the affected rows number"""
         try:
-            with self.get_connection() as conn:
+            with self.__get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(query, params)
                 conn.commit()
@@ -83,7 +83,7 @@ class DatabaseManager:
     def execute_script(self, script: str) -> bool:
         """Executes a SQL script with multiple commands"""
         try:
-            with self.get_connection() as conn:
+            with self.__get_connection() as conn:
                 conn.executescript(script)
                 conn.commit()
                 return True

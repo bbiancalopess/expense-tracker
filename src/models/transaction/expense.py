@@ -18,9 +18,9 @@ class Expense(Transaction):
         total_installments: int = 1,
     ):
         super().__init__(id, amount, description, date, payment_method)
-        self.category = category
-        self.current_installment = current_installment
-        self.total_installments = total_installments
+        self._category = category
+        self._current_installment = current_installment
+        self._total_installments = total_installments
 
     @property
     def transaction_type(self) -> TransactionType:
@@ -30,9 +30,9 @@ class Expense(Transaction):
         data = super().to_dict()
         data.update(
             {
-                "category_id": self.category.id if self.category else None,
-                "current_installment": self.current_installment,
-                "total_installments": self.total_installments,
+                "category_id": self._category._id if self._category else None,
+                "current_installment": self._current_installment,
+                "total_installments": self._total_installments,
             }
         )
         return data
@@ -49,3 +49,19 @@ class Expense(Transaction):
             current_installment=data.get("current_installment", 1),
             total_installments=data.get("total_installments", 1),
         )
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def category(self):
+        return self._category
+
+    @property
+    def description(self):
+        return self._description
+
+    @description.setter
+    def description(self, value: str) -> None:
+        self._description = value

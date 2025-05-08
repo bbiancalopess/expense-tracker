@@ -33,13 +33,13 @@ def main():
     if args.up_all:
         manager.apply_all_pending()
     elif args.up:
-        manager.apply_migration(args.up)
+        manager.__apply_migration(args.up)
     elif args.down:
-        manager.rollback_migration(args.down)
+        manager.__rollback_migration(args.down)
     elif args.status:
         print("\n=== Migrations status ===")
-        print("Applied migrations:", manager.get_applied_migrations())
-        print("Pending migrations:", manager.get_pending_migrations())
+        print("Applied migrations:", manager.__get_applied_migrations())
+        print("Pending migrations:", manager.__get_pending_migrations())
     else:
         parser.print_help()
 

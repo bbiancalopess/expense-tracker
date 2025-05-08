@@ -22,11 +22,11 @@ class Transaction(ABC):
         if amount <= 0:
             raise ValueError("Amount must be positive")
 
-        self.id = id
-        self.amount = amount
-        self.description = description
-        self.date = date or datetime.now()
-        self.payment_method = payment_method
+        self._id = id
+        self._amount = amount
+        self._description = description
+        self._date = date or datetime.now()
+        self._payment_method = payment_method
 
     @property
     @abstractmethod
@@ -35,12 +35,12 @@ class Transaction(ABC):
 
     def to_dict(self) -> dict[str, any]:
         return {
-            "id": self.id,
-            "amount": self.amount,
-            "description": self.description,
-            "date": self.date.isoformat(),
+            "id": self._id,
+            "amount": self._amount,
+            "description": self._description,
+            "date": self._date.isoformat(),
             "payment_method_id": (
-                self.payment_method.id if self.payment_method else None
+                self._payment_method._id if self._payment_method else None
             ),
             "type": self.transaction_type.value,
         }
