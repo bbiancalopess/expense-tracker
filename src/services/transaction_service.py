@@ -9,14 +9,14 @@ class TransactionService:
         self.repo = repository
 
     def add_transaction(self, transaction: Transaction) -> Transaction:
-        if isinstance(transaction, Expense) and not transaction.category:
+        if isinstance(transaction, Expense) and not transaction._category:
             print("Expense must have a category")
             return None
 
         try:
             transaction_id = self.repo.save(transaction)
             if transaction_id:
-                transaction.id = transaction_id
+                transaction._id = transaction_id
                 return transaction
             return None
         except Exception as e:
@@ -44,7 +44,7 @@ class TransactionService:
         try:
             return self.repo.save(transaction) is not None
         except Exception as e:
-            print(f"Error updating transaction {transaction.id}: {e}")
+            print(f"Error updating transaction {transaction._id}: {e}")
             return False
 
     def delete_transaction(self, transaction_id: int) -> bool:

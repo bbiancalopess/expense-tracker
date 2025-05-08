@@ -13,9 +13,9 @@ class Credit(PaymentMethod):
         due_day: int = None,
     ):
         super().__init__(id, name, balance)
-        self.credit_limit = credit_limit
-        self.closing_day = closing_day
-        self.due_day = due_day
+        self._credit_limit = credit_limit
+        self._closing_day = closing_day
+        self._due_day = due_day
 
     @property
     def payment_type(self) -> PaymentType:
@@ -23,7 +23,7 @@ class Credit(PaymentMethod):
 
     @property
     def available_limit(self) -> float:
-        return self.credit_limit - self.balance
+        return self._credit_limit - self.balance
 
     def process_payment(self, amount: float) -> bool:
         if amount > self.available_limit:
@@ -35,9 +35,9 @@ class Credit(PaymentMethod):
         data = super().to_dict()
         data.update(
             {
-                "credit_limit": self.credit_limit,
-                "closing_day": self.closing_day,
-                "due_day": self.due_day,
+                "credit_limit": self._credit_limit,
+                "closing_day": self._closing_day,
+                "due_day": self._due_day,
             }
         )
         return data
@@ -52,3 +52,32 @@ class Credit(PaymentMethod):
             closing_day=data.get("closing_day"),
             due_day=data.get("due_day"),
         )
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def credit_limit(self):
+        return self._credit_limit
+
+    @property
+    def balance(self):
+        return self._balance
+
+    @balance.setter
+    def balance(self, value: float) -> None:
+        """Setter para o saldo com validações"""
+        if value < 0:
+            raise ValueError("Balance cannot be negative")
+        if value > self._credit_limit:
+            raise ValueError("Balance cannot exceed credit limit")
+        self._balance = value
+
+    @name.setter
+    def name(self, value: str) -> None:
+        self._name = value

@@ -51,7 +51,7 @@ class TransactionRepository:
         try:
             data = transaction.to_dict()
 
-            if transaction.id:
+            if transaction._id:
                 query = """
                     UPDATE transactions SET
                     amount=?, description=?, date=?,
@@ -70,7 +70,7 @@ class TransactionRepository:
                     data["id"],
                 )
                 self.db.update(query, params)
-                return transaction.id
+                return transaction._id
             else:
                 query = """
                     INSERT INTO transactions (

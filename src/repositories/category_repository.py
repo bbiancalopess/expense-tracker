@@ -38,7 +38,7 @@ class CategoryRepository:
             if not data:
                 return None
 
-            if category.id:
+            if category._id:
                 query = """
                     UPDATE categories SET
                     name = ?
@@ -49,7 +49,7 @@ class CategoryRepository:
                     data["id"],
                 )
                 rows_affected = self.db.update(query, params)
-                return category.id if rows_affected > 0 else None
+                return category._id if rows_affected > 0 else None
             else:
                 query = """
                     INSERT INTO categories

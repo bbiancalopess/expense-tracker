@@ -11,9 +11,9 @@ class PaymentType(Enum):
 
 class PaymentMethod(ABC):
     def __init__(self, id: Optional[int] = None, name: str = "", balance: float = 0.0):
-        self.id = id
-        self.name = name
-        self.balance = balance
+        self._id = id
+        self._name = name
+        self._balance = balance
 
     @property
     @abstractmethod
@@ -22,9 +22,9 @@ class PaymentMethod(ABC):
 
     def to_dict(self) -> dict[str, any]:
         return {
-            "id": self.id,
-            "name": self.name,
-            "balance": self.balance,
+            "id": self._id,
+            "name": self._name,
+            "balance": self._balance,
             "type": self.payment_type.value,
         }
 

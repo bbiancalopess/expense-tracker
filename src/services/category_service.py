@@ -11,7 +11,7 @@ class CategoryService:
         try:
             category_id = self.repo.save(category)
             if category_id:
-                category.id = category_id
+                category._id = category_id
                 return category
             return None
         except Exception as e:
@@ -39,7 +39,7 @@ class CategoryService:
         try:
             return self.repo.save(category) is not None
         except Exception as e:
-            print(f"Error updating category {category.id}: {e}")
+            print(f"Error updating category {category._id}: {e}")
             return False
 
     def delete_category(self, category_id: int) -> bool:

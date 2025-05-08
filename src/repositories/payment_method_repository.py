@@ -54,7 +54,7 @@ class PaymentMethodRepository:
             if not data:
                 return None
 
-            if payment.id:
+            if payment._id:
                 query = """
                     UPDATE payment_methods SET
                     name = ?, balance = ?, type = ?,
@@ -71,7 +71,7 @@ class PaymentMethodRepository:
                     data["id"],
                 )
                 rows_affected = self.db.update(query, params)
-                return payment.id if rows_affected > 0 else None
+                return payment._id if rows_affected > 0 else None
             else:
                 query = """
                     INSERT INTO payment_methods

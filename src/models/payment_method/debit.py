@@ -30,3 +30,18 @@ class Debit(PaymentMethod):
         return cls(
             id=data.get("id"), name=data.get("name", ""), balance=data.get("balance", 0)
         )
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def balance(self):
+        return self._balance
+
+    @balance.setter
+    def balance(self, value: float) -> None:
+        """Setter para o saldo com validações"""
+        if value < 0:
+            raise ValueError("Balance cannot be negative")
+        self._balance = value
