@@ -7,7 +7,7 @@ class AddTransactionWindow(tk.Toplevel):
     def __init__(self, master=None):
         super().__init__(master)
         self.title("Adicionar Transação")
-        self.geometry("650x700")
+        self.geometry("700x750")
         self.minsize(500, 600)  
 
         # Centraliza a janela
@@ -235,9 +235,30 @@ class AddTransactionWindow(tk.Toplevel):
     
     def show_installments_field(self):
         """Mostra o campo de parcelas"""
+        # Remove o frame se já existir
         self.installments_frame.pack_forget()
         
-        self.installments_frame
+        # Recria o frame de parcelas
+        self.installments_frame = tk.Frame(self.main_form_frame, bg=self.colors["white"])
+        self.installments_frame.pack(fill="x", pady=(0, 15))
+        
+        # Parcelas
+        ttk.Label(self.installments_frame, text="Número de Parcelas *").pack(anchor="w", pady=(0, 5))
+        self.installments = ttk.Combobox(
+            self.installments_frame,
+            values=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            font=("Segoe UI", 10),
+            state="readonly"
+        )
+        self.installments.pack(fill="x", pady=(0, 15))
+
+    def hide_installments_field(self):
+        """Esconde o campo de parcelas"""
+        self.installments_frame.pack_forget()
+        if hasattr(self, 'installments'):
+            del self.installments
+        self.installments = None
+
 
     def on_payment_method_change(self, event=None):
         """Lida com a mudança no método de pagamento"""
