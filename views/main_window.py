@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 from views.components.transactions_panel import TransactionsPanel
 from views.add_transaction import AddTransactionWindow
+from views.wallet_window import WalletWindow
+from views.metrics_window import MetricsWindow
 
 class MainWindow(tk.Tk):
     def __init__(self):
@@ -74,14 +76,16 @@ class MainWindow(tk.Tk):
 
         style.map("Exit.TButton",
             background=[("active", self.color_palette["dark_red"])])
+        
         style.configure("TLabel",
             font=("Segoe UI", 12),
-            background=self.color_palette["light_gray"],
+            background=self.color_palette["white"],
             foreground=self.color_palette["dark_blue"])
         
         style.configure("Title.TLabel",
             font=("Segoe UI", 16, "bold"),
             foreground=self.color_palette["dark_blue"])
+            
 
     def create_widgets(self):
         # Frame principal que contém sidebar e content
@@ -93,7 +97,6 @@ class MainWindow(tk.Tk):
         sidebar.pack(side="left", fill="y")
         sidebar.pack_propagate(False)
 
-        # Logo/Title no sidebar
         logo_label = tk.Label(sidebar, 
             text="Expense Tracker",
             bg=self.color_palette["sidebar"],
@@ -102,58 +105,61 @@ class MainWindow(tk.Tk):
             pady=20)
         logo_label.pack(fill="x")
 
-        # Botões do sidebar
         buttons = [
+            ("Home", self.show_home),
+
             ("Carteira", self.open_wallet),
             ("Métricas", self.open_metrics),
         ]
 
         for text, command in buttons:
-            btn = ttk.Button(sidebar, 
-                text=text, 
-                command=command,
-                style="Sidebar.TButton")
+            btn = ttk.Button(sidebar, text=text, command=command, style="Sidebar.TButton")
             btn.pack(pady=5, padx=10, fill="x")
 
-        # Botão "Sair" fixado no rodapé do sidebar
-        exit_btn = ttk.Button(sidebar, 
-            text="Sair", 
-            command=self.quit,
-            style="Exit.TButton")
+        exit_btn = ttk.Button(sidebar, text="Sair", command=self.quit, style="Exit.TButton")
         exit_btn.pack(side="bottom", pady=10, padx=10, fill="x")
 
-        # Área de conteúdo principal
-        content = tk.Frame(main_container, bg=self.color_palette["light_gray"])
-        content.pack(side="right", expand=True, fill="both", padx=20, pady=20)
+        # Frame de conteúdo principal que será trocado
+        self.content_frame = tk.Frame(main_container, bg=self.color_palette["light_gray"])
+        self.content_frame.pack(side="right", expand=True, fill="both", padx=20, pady=20)
 
-        # Título da página
-        title = ttk.Label(content, 
-            text="Tela inicial",
-            style="Title.TLabel")
+        # Carregar conteúdo inicial
+        self.show_home()
+
+    def switch_content(self, new_frame_class):
+        # Remove o conteúdo atual
+        for widget in self.content_frame.winfo_children():
+            widget.destroy()
+        # Insere novo conteúdo
+        frame = new_frame_class(self.content_frame, self.color_palette)
+        frame.pack(expand=True, fill="both")
+
+    def show_home(self):
+        for widget in self.content_frame.winfo_children():
+            widget.destroy()
+
+        title = ttk.Label(self.content_frame, text="Tela inicial", style="Title.TLabel")
         title.pack(pady=(0, 20), anchor="w")
 
-        # Painel de transações
-        self.transactions_panel = TransactionsPanel(content, self.color_palette)
+        self.transactions_panel = TransactionsPanel(self.content_frame, self.color_palette)
         self.transactions_panel.pack(expand=True, fill="both")
 
-        # Botão para adicionar transação
-        add_btn = ttk.Button(content, 
-            text="Adicionar Transação", 
-            command=self.open_add_transaction,
-            style="TButton")
+        add_btn = ttk.Button(self.content_frame,
+                            text="Adicionar Transação",
+                            command=self.open_add_transaction,
+                            style="TButton")
         add_btn.pack(pady=20, ipadx=20, ipady=5)
+
 
     def open_add_transaction(self):
         AddTransactionWindow(self)
     
     def open_wallet(self):
-        print("Abrindo carteira")
-        # WalletWindow(self)
+        self.switch_content(WalletWindow)
+
 
     def open_metrics(self):
-        print("Abrindo métricas")
-        # MetricsWindow(self)
+        self.switch_content(MetricsWindow)
 
-    # colocar no bottom
     def quit(self):
         self.destroy()
