@@ -7,7 +7,7 @@ class AddTransactionWindow(tk.Toplevel):
     def __init__(self, master=None):
         super().__init__(master)
         self.title("Adicionar Transação")
-        self.geometry("700x750")
+        self.geometry("650x700")
         self.minsize(500, 600)  
 
         # Centraliza a janela
@@ -37,10 +37,10 @@ class AddTransactionWindow(tk.Toplevel):
         self.geometry(f'+{x}+{y}')
     
     def create_widgets(self):
-        # Frame principal com scrollbar
+        # Frame principal
         main_frame = tk.Frame(self, bg=self.colors["light_gray"])
         main_frame.pack(expand=True, fill="both", padx=30, pady=30)
-        
+
         # Título
         title_label = tk.Label(
             main_frame,
@@ -50,22 +50,45 @@ class AddTransactionWindow(tk.Toplevel):
             fg=self.colors["dark_blue"]
         )
         title_label.pack(pady=(0, 20))
-        
-        # Frame do formulário com scrollbar
-        self.form_frame = tk.Frame(main_frame, bg=self.colors["white"], padx=20, pady=20)
-        self.form_frame.pack(fill="both", expand=True)
-        
-        # Configurar estilo
+
+        # Canvas + Scrollbar
+        canvas_frame = tk.Frame(main_frame)
+        canvas_frame.pack(expand=True, fill="both")
+
+        canvas = tk.Canvas(canvas_frame, bg=self.colors["light_gray"], highlightthickness=0)
+        canvas.pack(side="left", fill="both", expand=True)
+
+        scrollbar = ttk.Scrollbar(canvas_frame, orient="vertical", command=canvas.yview)
+        scrollbar.pack(side="right", fill="y")
+
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Frame dentro do Canvas
+        self.form_frame = tk.Frame(canvas, bg=self.colors["white"], padx=20, pady=20)
+        self.form_frame_id = canvas.create_window((0, 0), window=self.form_frame, anchor="nw")
+
+        # Atualiza o scrollregion quando o tamanho do frame mudar
+        def on_configure(event):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+            canvas.itemconfig(self.form_frame_id, width=canvas.winfo_width())
+
+        self.form_frame.bind("<Configure>", on_configure)
+        canvas.bind("<Configure>", on_configure)
+
+        # Permite rolar com o mouse
+        def _on_mousewheel(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+
+        canvas.bind_all("<MouseWheel>", _on_mousewheel)
+
+        # Estilos e campos do formulário
         self.configure_styles()
-        
-        # Campos do formulário
         self.create_form_fields(self.form_frame)
-        
+
         # Frame dos botões
         button_frame = tk.Frame(main_frame, bg=self.colors["light_gray"])
         button_frame.pack(fill="x", pady=(20, 0))
-        
-        # Botões
+
         save_button = ttk.Button(
             button_frame,
             text="Salvar",
@@ -73,7 +96,7 @@ class AddTransactionWindow(tk.Toplevel):
             command=self.save_transaction
         )
         save_button.pack(side="right", padx=5)
-        
+
         cancel_button = ttk.Button(
             button_frame,
             text="Cancelar",
@@ -81,10 +104,10 @@ class AddTransactionWindow(tk.Toplevel):
             command=self.destroy
         )
         cancel_button.pack(side="right", padx=5)
-        
+
         button_frame.pack_propagate(False)
         button_frame.configure(height=50)
-    
+
     def configure_styles(self):
         """Configura os estilos dos widgets"""
         style = ttk.Style()
@@ -226,7 +249,6 @@ class AddTransactionWindow(tk.Toplevel):
             state="readonly"
         )
         self.categories.pack(fill="x", pady=(0, 15))
-        self.categories.bind("<<ComboboxSelected>>", self.on_category_change)
         self.categories_frame.pack(fill="x", pady=(0, 15))
 
     def hide_categories(self):

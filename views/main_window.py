@@ -19,7 +19,10 @@ class MainWindow(tk.Tk):
             "light_blue": "#bfdbf7",
             "light_gray": "#e1e5f2",
             "white": "#ffffff",
-            "sidebar": "#1f7a8c"
+            "sidebar": "#1f7a8c",
+            "dark_red": "#9b2226",
+            "medium_red": "#ae2012"
+
         }
         
         self.configure_style()
@@ -59,7 +62,18 @@ class MainWindow(tk.Tk):
         
         style.map("TButton",
             background=[("active", self.color_palette["dark_blue"])])
-    
+
+        # Estilo do botão "Sair"
+        style.configure("Exit.TButton",
+            font=("Segoe UI", 12),
+            padding=10,
+            background=self.color_palette["medium_red"],
+            foreground=self.color_palette["white"],
+            width=15,
+            anchor="w")
+
+        style.map("Exit.TButton",
+            background=[("active", self.color_palette["dark_red"])])
         style.configure("TLabel",
             font=("Segoe UI", 12),
             background=self.color_palette["light_gray"],
@@ -92,7 +106,6 @@ class MainWindow(tk.Tk):
         buttons = [
             ("Carteira", self.open_wallet),
             ("Métricas", self.open_metrics),
-            ("Sair", self.quit)
         ]
 
         for text, command in buttons:
@@ -101,6 +114,13 @@ class MainWindow(tk.Tk):
                 command=command,
                 style="Sidebar.TButton")
             btn.pack(pady=5, padx=10, fill="x")
+
+        # Botão "Sair" fixado no rodapé do sidebar
+        exit_btn = ttk.Button(sidebar, 
+            text="Sair", 
+            command=self.quit,
+            style="Exit.TButton")
+        exit_btn.pack(side="bottom", pady=10, padx=10, fill="x")
 
         # Área de conteúdo principal
         content = tk.Frame(main_container, bg=self.color_palette["light_gray"])
