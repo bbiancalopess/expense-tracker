@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from views.components.transactions_panel import TransactionsPanel
-from views.add_transaction import AddTransactionWindow
+from views.add_transaction_window import AddTransactionWindow
 from views.wallet_window import WalletWindow
 from views.metrics_window import MetricsWindow
 
@@ -24,7 +24,6 @@ class MainWindow(tk.Tk):
             "sidebar": "#1f7a8c",
             "dark_red": "#9b2226",
             "medium_red": "#ae2012"
-
         }
         
         self.configure_style()
