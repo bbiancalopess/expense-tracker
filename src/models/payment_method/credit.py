@@ -42,7 +42,6 @@ class Credit(PaymentMethod):
         )
         return data
 
-    @classmethod
     def from_dict(cls, data: dict):
         return cls(
             id=data.get("id"),
@@ -78,6 +77,6 @@ class Credit(PaymentMethod):
             raise ValueError("Balance cannot exceed credit limit")
         self._balance = value
 
-    @name.setter
+    @name.setter #verificar string
     def name(self, value: str) -> None:
         self._name = value

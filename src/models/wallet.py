@@ -16,3 +16,4 @@ class Wallet:
             if method.name == name:
                 return method
         return None
+# retirar?

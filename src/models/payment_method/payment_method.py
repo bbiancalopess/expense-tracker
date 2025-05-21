@@ -15,7 +15,6 @@ class PaymentMethod(ABC):
         self._name = name
         self._balance = balance
 
-    @property
     @abstractmethod
     def payment_type(self) -> PaymentType:
         pass

@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from views.add_account_window import AddAccountWindow
 
 class WalletWindow(tk.Frame):
     def __init__(self, parent, color_palette):
@@ -30,6 +31,14 @@ class WalletWindow(tk.Frame):
         self.cartoes = [
             ("Inter crédito", "Fecha em 01/mar", 1200.00),
         ]
+
+    def open_add_account_window(self):
+        if hasattr(self, '_add_window') and self._add_window.winfo_exists():
+            self._add_window.lift()
+            return
+        
+        self._add_window = AddAccountWindow(master=self.parent)
+        self._add_window.grab_set()
 
     def create_widgets(self):
         # Frame principal que ocupa todo o espaço
@@ -97,8 +106,9 @@ class WalletWindow(tk.Frame):
         ttk.Label(contas_frame, text=f"Total R$ {total_contas:,.2f}", style="TLabel").pack(anchor="e", pady=5)
 
         # Botão Adicionar Conta
-        add_btn = ttk.Button(scrollable_frame, text="Adicionar conta", style="TButton")
+        add_btn = ttk.Button(scrollable_frame, text="Adicionar conta", style="TButton", command=self.open_add_account_window)
         add_btn.pack(fill="x", padx=20, pady=(0, 20)) 
+
 
         # Cartões
         cartoes_frame = tk.Frame(scrollable_frame, bg=self.color_palette["white"], padx=20, pady=15)
