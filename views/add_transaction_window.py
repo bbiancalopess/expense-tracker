@@ -266,11 +266,12 @@ class AddTransactionWindow(tk.Toplevel):
         
         # Parcelas
         ttk.Label(self.installments_frame, text="Número de Parcelas *").pack(anchor="w", pady=(0, 5))
-        self.installments = ttk.Combobox(
+        vcmd_installments = (self.register(self.validate_numeric_input_installments), '%P')
+        self.installments = ttk.Entry(
             self.installments_frame,
-            values=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
             font=("Segoe UI", 10),
-            state="readonly"
+            validate="key",
+            validatecommand=vcmd_installments
         )
         self.installments.pack(fill="x", pady=(0, 15))
 
@@ -291,9 +292,9 @@ class AddTransactionWindow(tk.Toplevel):
         
     def validate_numeric_input(self, new_text):
         """Permite apenas números, ponto ou vírgula decimal"""
-        if not new_text:  # Permite campo vazio (para poder apagar)
+        if not new_text:  # Permite campo vazio
             return True
-        # Verifica se o texto é um número válido (com ponto ou vírgula decimal)
+        # Verifica se o texto é um número válido
         try:
             # Substitui vírgula por ponto para validação
             value_str = new_text.replace(',', '.')
@@ -301,6 +302,16 @@ class AddTransactionWindow(tk.Toplevel):
             return True
         except ValueError:
             return False 
+
+    def validate_numeric_input_installments(self, new_text):
+        """Permite apenas números inteiros entre 1 e 360"""
+        if not new_text:
+            return True
+        try:
+            value = int(new_text)
+            return 1 <= value <= 360
+        except ValueError:
+            return False
     
     def save_transaction(self):
         """Valida e salva a transação"""
@@ -311,6 +322,7 @@ class AddTransactionWindow(tk.Toplevel):
         description = self.desc_entry.get()
         payment_method = self.payment_method.get()
         category = self.categories.get()
+        installment = self.installments.get()
         
         # Validação
         errors = []
@@ -333,9 +345,11 @@ class AddTransactionWindow(tk.Toplevel):
         if not date:
             errors.append("Selecione uma data")
         
-        # Validação específica para crédito
         if payment_method == "Crédito" and not hasattr(self, 'installments'):
             errors.append("Selecione o número de parcelas")
+        
+        if int(installment) > 360 or int(installment) <= 0 :
+            errors.append("Valor inválido, o número de parcelas tem que estar entre 0 e 360")
         
         if errors:
             tk.messagebox.showerror(
@@ -357,4 +371,6 @@ class AddTransactionWindow(tk.Toplevel):
         
         # Aqui você conectaria com o backend para salvar
         print("Transação salva:", transaction_data)
+
+        # Fechar a janela após salvar
         self.destroy()
