@@ -1,7 +1,8 @@
-from src.models.transaction.transaction import Transaction, TransactionType
+from src.models.transaction.transaction import Transaction
 from datetime import datetime
 from typing import Optional
 from src.models.payment_method.payment_method import PaymentMethod
+from src.models.transaction.transaction_type import TransactionType
 
 
 class Income(Transaction):
@@ -14,17 +15,20 @@ class Income(Transaction):
         payment_method: Optional[PaymentMethod] = None,
     ):
         super().__init__(id, amount, description, date, payment_method)
-
-    @property
-    def transaction_type(self) -> TransactionType:
-        return TransactionType.INCOME
+        self._transaction_type = TransactionType.INCOME
 
     def to_dict(self) -> dict[str, any]:
-        data = super().to_dict()
-        return data
+        return {
+            "id": self._id,
+            "amount": self._amount,
+            "description": self._description,
+            "date": self._date.isoformat(),
+            "payment_method_id": self._payment_method._id if self._payment_method else None,
+            "type": self._transaction_type,
+        }
 
     @classmethod
-    def from_dict(cls, data: dict):
+    def from_dict(cls, data: dict) -> 'Income':
         return cls(
             id=data.get("id"),
             amount=data["amount"],
@@ -32,19 +36,3 @@ class Income(Transaction):
             date=datetime.fromisoformat(data["date"]) if "date" in data else None,
             payment_method=data.get("payment_method"),
         )
-
-    @property
-    def id(self):
-        return self._id
-
-    @property
-    def amount(self):
-        return self._amount
-
-    @property
-    def payment_method(self):
-        return self._payment_method
-
-    @property
-    def description(self):
-        return self._description

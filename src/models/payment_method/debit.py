@@ -1,47 +1,37 @@
-from src.models.payment_method.payment_method import PaymentMethod, PaymentType
+from src.models.payment_method.payment_method import PaymentMethod
+from src.models.payment_method.payment_type import PaymentType
 from typing import Optional
 
 
 class Debit(PaymentMethod):
     def __init__(
         self,
-        id: Optional[int],
-        name: str,
+        id: Optional[int] = None,
+        name: str = "",
         balance: float = 0.0,
     ):
         super().__init__(id, name, balance)
-
-    @property
-    def payment_type(self) -> PaymentType:
-        return PaymentType.DEBIT
+        self._payment_type = PaymentType.DEBIT
 
     def process_payment(self, amount: float) -> bool:
+        if amount <= 0:
+            raise ValueError("Payment amount must be positive")
         if amount > self.balance:
             return False
-        self.balance -= amount
+        self._balance -= amount
         return True
 
-    def to_dict(self): #retirar
-        data = super().to_dict()
-        return data
+    def to_dict(self) -> dict[str, any]:
+        return {
+            "id": self._id,
+            "name": self._name,
+            "balance": self._balance,
+            "type": self._payment_type,
+        }
 
-    @classmethod
-    def from_dict(cls, data: dict):
-        return cls(
-            id=data.get("id"), name=data.get("name", ""), balance=data.get("balance", 0)
+    def from_dict(self, data: dict[str, any]) -> 'Debit':
+        return self(
+            id=data.get("id"),
+            name=data.get("name", ""),
+            balance=data.get("balance", 0),
         )
-
-    @property
-    def id(self):
-        return self._id
-
-    @property
-    def balance(self):
-        return self._balance
-
-    @balance.setter
-    def balance(self, value: float) -> None:
-        """Setter para o saldo com validações"""
-        if value < 0:
-            raise ValueError("Balance cannot be negative")
-        self._balance = value

@@ -1,13 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
-from enum import Enum
 from typing import Optional
 from src.models.payment_method.payment_method import PaymentMethod
-
-
-class TransactionType(Enum):
-    INCOME = "INCOME"
-    EXPENSE = "EXPENSE"
 
 
 class Transaction(ABC):
@@ -27,20 +21,37 @@ class Transaction(ABC):
         self._description = description
         self._date = date or datetime.now()
         self._payment_method = payment_method
+        self._transaction_type: str = ""
 
     @property
+    def id(self) -> Optional[int]:
+        return self._id
+
+    @property
+    def amount(self) -> float:
+        return self._amount
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def date(self) -> datetime:
+        return self._date
+
+    @property
+    def payment_method(self) -> Optional[PaymentMethod]:
+        return self._payment_method
+
+    @property
+    def transaction_type(self) -> str:
+        return self._transaction_type
+
+    @classmethod
     @abstractmethod
-    def transaction_type(self) -> TransactionType:
+    def from_dict(cls, data: dict[str, any]):
         pass
 
+    @abstractmethod
     def to_dict(self) -> dict[str, any]:
-        return {
-            "id": self._id,
-            "amount": self._amount,
-            "description": self._description,
-            "date": self._date.isoformat(),
-            "payment_method_id": (
-                self._payment_method._id if self._payment_method else None
-            ),
-            "type": self.transaction_type.value,
-        }
+        pass
