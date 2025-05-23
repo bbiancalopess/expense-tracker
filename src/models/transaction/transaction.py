@@ -9,7 +9,7 @@ class Transaction(ABC):
     Classe abstrata que representa uma transação financeira genérica.
     Pode ser uma despesa (Expense) ou receita (Income).
     """
-    
+
     def __init__(
         self,
         id: Optional[int] = None,
@@ -20,7 +20,7 @@ class Transaction(ABC):
     ):
         """
         Inicializa uma transação com dados básicos.
-        
+
         Args:
             amount: Valor da transação (deve ser positivo)
             description: Descrição/observação
@@ -72,10 +72,19 @@ class Transaction(ABC):
     @abstractmethod
     def to_dict(self) -> dict[str, any]:
         """Converte transação para dicionário (serialização)"""
-        pass
+        return {
+            "id": self._id,
+            "amount": self._amount,
+            "description": self._description,
+            "date": self._date.isoformat(),  # Converte data para string ISO
+            "payment_method_id": (
+                self._payment_method.id if self._payment_method else None
+            ),
+            "type": self._transaction_type,
+        }
 
     @classmethod
     @abstractmethod
-    def from_dict(cls, data: dict[str, any]) -> 'Transaction':
+    def from_dict(cls, data: dict[str, any]) -> "Transaction":
         """Cria transação a partir de dicionário (desserialização)"""
         pass

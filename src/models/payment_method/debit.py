@@ -8,7 +8,7 @@ class Debit(PaymentMethod):
     Implementação concreta de PaymentMethod para cartões de débito.
     Mais simples que o crédito, apenas verifica saldo disponível.
     """
-    
+
     def __init__(
         self,
         id: Optional[int] = None,
@@ -22,13 +22,13 @@ class Debit(PaymentMethod):
     def process_payment(self, amount: float) -> bool:
         """
         Processa pagamento no débito.
-        
+
         Args:
             amount: Valor a ser debitado
-            
+
         Returns:
             bool: True se pagamento aprovado (saldo suficiente), False caso contrário
-            
+
         Raises:
             ValueError: Se valor for inválido
         """
@@ -39,17 +39,8 @@ class Debit(PaymentMethod):
         self._balance -= amount  # Debita do saldo
         return True  # Pagamento aprovado
 
-    def to_dict(self) -> dict[str, any]:
-        """Converte o débito para dicionário serializável"""
-        return {
-            "id": self._id,
-            "name": self._name,
-            "balance": self._balance,
-            "type": self._payment_type,
-        }
-
     @classmethod
-    def from_dict(cls, data: dict[str, any]) -> 'Debit':
+    def from_dict(cls, data: dict[str, any]) -> "Debit":
         """Cria instância de Debit a partir de dicionário"""
         return cls(
             id=data.get("id"),

@@ -11,7 +11,7 @@ class Expense(Transaction):
     Implementação concreta de Transaction para transações de saída/despesa.
     Pode ser parcelada (com número de parcelas) e associada a categorias.
     """
-    
+
     def __init__(
         self,
         id: Optional[int] = None,
@@ -25,7 +25,7 @@ class Expense(Transaction):
     ):
         """
         Inicializa uma despesa, que pode ser parcelada.
-        
+
         Args:
             category: Categoria da despesa (alimentação, transporte, etc.)
             current_installment: Parcela atual (1 se não parcelado)
@@ -66,7 +66,9 @@ class Expense(Transaction):
             "amount": self._amount,
             "description": self._description,
             "date": self._date.isoformat(),
-            "payment_method_id": self._payment_method.id if self._payment_method else None,
+            "payment_method_id": (
+                self._payment_method.id if self._payment_method else None
+            ),
             "type": self._transaction_type,
             "category_id": self._category.id if self._category else None,
             "current_installment": self._current_installment,
@@ -74,7 +76,7 @@ class Expense(Transaction):
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, any]) -> 'Expense':
+    def from_dict(cls, data: dict[str, any]) -> "Expense":
         """Cria Expense a partir de dicionário"""
         return cls(
             id=data.get("id"),

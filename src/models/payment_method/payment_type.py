@@ -2,10 +2,10 @@ class PaymentType:
     """
     Classe que define os tipos de pagamento disponíveis no sistema.
     """
-    
+
     # Constantes de classe para tipos de pagamento
     CREDIT = "CREDIT"  # Pagamento via crédito
-    DEBIT = "DEBIT"    # Pagamento via débito
+    DEBIT = "DEBIT"  # Pagamento via débito
 
     @classmethod
     def get_types(cls) -> list[str]:

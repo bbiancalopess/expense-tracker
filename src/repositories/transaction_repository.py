@@ -11,17 +11,17 @@ class TransactionRepository:
     Repositório para operações CRUD de transações financeiras.
     Lida com os tipos Income e Expense de forma transparente.
     """
-    
+
     def __init__(self, db: DatabaseManager):
         self.db = db
 
     def __create_transaction_from_dict(self, data: dict) -> Optional[Transaction]:
         """
         Factory method interno para criar instâncias específicas de Transaction.
-        
+
         Args:
             data: Dicionário com os dados do banco
-            
+
         Returns:
             Instância de Income, Expense ou None se inválido
         """
@@ -40,7 +40,7 @@ class TransactionRepository:
     def get_all(self) -> list[Transaction]:
         """
         Recupera todas as transações do banco.
-        
+
         Returns:
             Lista de Transaction (Income ou Expense) ou lista vazia
         """
@@ -53,17 +53,21 @@ class TransactionRepository:
                 ORDER BY date DESC;
             """
             results = self.db.select(query)
-            return [self.__create_transaction_from_dict(row) for row in results] if results else []
+            return (
+                [self.__create_transaction_from_dict(row) for row in results]
+                if results
+                else []
+            )
         except Exception as e:
             raise Exception(f"Error getting all transactions: {e}")
 
     def get_by_id(self, transaction_id: int) -> Optional[Transaction]:
         """
         Busca uma transação pelo ID.
-        
+
         Args:
             transaction_id: ID da transação
-            
+
         Returns:
             Instância de Transaction ou None se não encontrada
         """
@@ -83,13 +87,13 @@ class TransactionRepository:
     def save(self, transaction: Transaction) -> int:
         """
         Salva uma transação no banco (insere ou atualiza).
-        
+
         Args:
             transaction: Instância de Income ou Expense
-            
+
         Returns:
             ID da transação salva ou None em caso de falha
-            
+
         Raises:
             ValueError: Se o objeto transaction for inválido
         """
@@ -98,7 +102,7 @@ class TransactionRepository:
 
         try:
             data = transaction.to_dict()
-            
+
             if transaction.id:
                 # Atualização
                 query = """
@@ -116,7 +120,7 @@ class TransactionRepository:
                     data.get("category_id"),
                     data.get("current_installment", 1),
                     data.get("total_installments", 1),
-                    data["id"]
+                    data["id"],
                 )
                 self.db.update(query, params)
                 return transaction.id
@@ -136,7 +140,7 @@ class TransactionRepository:
                     data.get("category_id"),
                     data.get("current_installment", 1),
                     data.get("total_installments", 1),
-                    data["type"]
+                    data["type"],
                 )
                 return self.db.insert(query, params)
         except Exception as e:
@@ -145,10 +149,10 @@ class TransactionRepository:
     def delete(self, transaction_id: int) -> bool:
         """
         Remove uma transação do banco.
-        
+
         Args:
             transaction_id: ID da transação a ser removida
-            
+
         Returns:
             True se removida com sucesso, False caso contrário
         """

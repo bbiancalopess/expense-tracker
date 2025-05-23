@@ -10,7 +10,7 @@ class Income(Transaction):
     Implementação concreta de Transaction para transações de entrada/receita.
     Exemplos: Salário, reembolsos, transferências recebidas, etc.
     """
-    
+
     def __init__(
         self,
         id: Optional[int] = None,
@@ -23,19 +23,8 @@ class Income(Transaction):
         super().__init__(id, amount, description, date, payment_method)
         self._transaction_type = TransactionType.INCOME  # Define tipo específico
 
-    def to_dict(self) -> dict[str, any]:
-        """Converte a receita para dicionário"""
-        return {
-            "id": self._id,
-            "amount": self._amount,
-            "description": self._description,
-            "date": self._date.isoformat(),  # Converte data para string ISO
-            "payment_method_id": self._payment_method.id if self._payment_method else None,
-            "type": self._transaction_type,
-        }
-
     @classmethod
-    def from_dict(cls, data: dict[str, any]) -> 'Income':
+    def from_dict(cls, data: dict[str, any]) -> "Income":
         """Cria Income a partir de dicionário"""
         return cls(
             id=data.get("id"),

@@ -7,18 +7,18 @@ class PaymentMethod(ABC):
     Classe abstrata que representa um método de pagamento genérico.
     Serve como base para implementações específicas como crédito e débito.
     """
-    
+
     def __init__(self, id: Optional[int] = None, name: str = "", balance: float = 0.0):
         """
         Inicializa o método de pagamento com valores básicos.
-        
+
         Args:
             id: Identificador único (opcional)
             name: Nome do método de pagamento
             balance: Saldo/valor disponível
         """
-        self._id = id          # ID interno
-        self._name = name      # Nome do método
+        self._id = id  # ID interno
+        self._name = name  # Nome do método
         self._balance = balance  # Saldo disponível
         self._payment_type: str = ""  # Tipo (será definido nas subclasses)
 
@@ -65,10 +65,14 @@ class PaymentMethod(ABC):
         return self._payment_type
 
     # Métodos abstratos que devem ser implementados pelas subclasses
-    @abstractmethod
     def to_dict(self) -> dict[str, any]:
         """Converte o objeto para dicionário (serialização)"""
-        pass
+        return {
+            "id": self._id,
+            "name": self._name,
+            "balance": self._balance,
+            "type": self._payment_type,
+        }
 
     @abstractmethod
     def process_payment(self, amount: float) -> bool:
@@ -77,6 +81,6 @@ class PaymentMethod(ABC):
 
     @classmethod
     @abstractmethod
-    def from_dict(cls, data: dict[str, any]) -> 'PaymentMethod':
+    def from_dict(cls, data: dict[str, any]) -> "PaymentMethod":
         """Cria instância a partir de dicionário (desserialização)"""
         pass

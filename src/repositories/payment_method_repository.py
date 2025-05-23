@@ -11,17 +11,17 @@ class PaymentMethodRepository:
     Repositório para operações CRUD de métodos de pagamento.
     Lida com os tipos específicos (Credit e Debit) de forma transparente.
     """
-    
+
     def __init__(self, db: DatabaseManager):
         self.db = db
 
     def __create_payment_from_dict(self, data: dict) -> Optional[PaymentMethod]:
         """
         Factory method interno para criar instâncias específicas de PaymentMethod.
-        
+
         Args:
             data: Dicionário com os dados do banco
-            
+
         Returns:
             Instância de Credit, Debit ou None se inválido
         """
@@ -40,7 +40,7 @@ class PaymentMethodRepository:
     def get_all(self) -> list[PaymentMethod]:
         """
         Recupera todos os métodos de pagamento do banco.
-        
+
         Returns:
             Lista de PaymentMethod (Credit ou Debit) ou lista vazia
         """
@@ -51,17 +51,21 @@ class PaymentMethodRepository:
                 FROM payment_methods;
             """
             results = self.db.select(query)
-            return [self.__create_payment_from_dict(row) for row in results] if results else []
+            return (
+                [self.__create_payment_from_dict(row) for row in results]
+                if results
+                else []
+            )
         except Exception as e:
             raise Exception(f"Error getting all payment methods: {e}")
 
     def get_by_id(self, payment_id: int) -> Optional[PaymentMethod]:
         """
         Busca um método de pagamento pelo ID.
-        
+
         Args:
             payment_id: ID do método de pagamento
-            
+
         Returns:
             Instância de PaymentMethod ou None se não encontrado
         """
@@ -80,13 +84,13 @@ class PaymentMethodRepository:
     def save(self, payment: PaymentMethod) -> int:
         """
         Salva um método de pagamento no banco (insere ou atualiza).
-        
+
         Args:
             payment: Instância de Credit ou Debit
-            
+
         Returns:
             ID do método salvo ou None em caso de falha
-            
+
         Raises:
             ValueError: Se o objeto payment for inválido
         """
@@ -95,7 +99,7 @@ class PaymentMethodRepository:
 
         try:
             data = payment.to_dict()
-            
+
             if payment.id:
                 # Atualização
                 query = """
@@ -111,7 +115,7 @@ class PaymentMethodRepository:
                     data.get("credit_limit"),
                     data.get("closing_day"),
                     data.get("due_day"),
-                    data["id"]
+                    data["id"],
                 )
                 self.db.update(query, params)
                 return payment.id
@@ -128,7 +132,7 @@ class PaymentMethodRepository:
                     data["type"],
                     data.get("credit_limit"),
                     data.get("closing_day"),
-                    data.get("due_day")
+                    data.get("due_day"),
                 )
                 return self.db.insert(query, params)
         except Exception as e:
@@ -137,10 +141,10 @@ class PaymentMethodRepository:
     def delete(self, payment_id: int) -> bool:
         """
         Remove um método de pagamento do banco.
-        
+
         Args:
             payment_id: ID do método a ser removido
-            
+
         Returns:
             True se removido com sucesso, False caso contrário
         """

@@ -3,9 +3,9 @@ class TransactionType:
     Classe que define os tipos de transação financeira.
     Similar ao PaymentType mas para classificar transações.
     """
-    
+
     # Constantes de classe
-    INCOME = "INCOME"    # Transação de entrada/receita
+    INCOME = "INCOME"  # Transação de entrada/receita
     EXPENSE = "EXPENSE"  # Transação de saída/despesa
 
     @classmethod
