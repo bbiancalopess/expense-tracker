@@ -83,7 +83,9 @@ class MainWindow(tk.Tk):
         
         style.configure("Title.TLabel",
             font=("Segoe UI", 16, "bold"),
-            foreground=self.color_palette["dark_blue"])
+            foreground=self.color_palette["dark_blue"],
+            background=self.color_palette["light_gray"])
+
             
 
     def create_widgets(self):

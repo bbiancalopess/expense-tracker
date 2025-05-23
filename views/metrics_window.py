@@ -19,7 +19,7 @@ class MetricsWindow(tk.Frame):
         header_frame = tk.Frame(main_frame, bg=self.color_palette["white"], padx=20, pady=15)
         header_frame.pack(fill="x", pady=(0, 20))
 
-        ttk.Label(header_frame, text="Métricas", style="Title.TLabel").pack(anchor="w")
+        ttk.Label(header_frame, text="Métricas", style="Title.TLabel", background=self.color_palette["white"]).pack(anchor="w")
 
         # Botões de alternância
         toggle_frame = tk.Frame(header_frame, bg=self.color_palette["white"])

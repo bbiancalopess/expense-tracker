@@ -15,7 +15,8 @@ class TransactionsPanel(tk.Frame):
         # Título
         title = ttk.Label(inner_frame,
                         text="Últimas transações",
-                        style="Title.TLabel")
+                        style="Title.TLabel",
+                        background=self.color_palette["white"],)
         title.pack(pady=(0, 20), anchor="w")
 
         # Tabela com headers e valores

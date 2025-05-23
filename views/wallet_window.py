@@ -53,7 +53,7 @@ class WalletWindow(tk.Frame):
         saldo_frame = tk.Frame(header_frame, bg=self.color_palette["white"])
         saldo_frame.pack(side="left", fill="y")
 
-        ttk.Label(saldo_frame, text="Saldo em conta", style="Title.TLabel").pack(anchor="w")
+        ttk.Label(saldo_frame, text="Saldo em conta", style="Title.TLabel", background=self.color_palette["white"] ).pack(anchor="w")
         ttk.Label(saldo_frame, text=f"R$ {self.saldo:,.2f}", style="TLabel").pack(anchor="w", pady=(5, 0))
 
         # Receitas e Despesas
@@ -94,13 +94,13 @@ class WalletWindow(tk.Frame):
         contas_frame = tk.Frame(scrollable_frame, bg=self.color_palette["white"], padx=20, pady=15)
         contas_frame.pack(fill="both", pady=(0, 10), expand=True) 
 
-        ttk.Label(contas_frame, text="Contas", style="Title.TLabel").pack(anchor="w")
+        ttk.Label(contas_frame, text="Contas", style="Title.TLabel", background=self.color_palette["white"]).pack(anchor="w")
 
         for banco, valor in self.contas:
             conta_item = tk.Frame(contas_frame, bg=self.color_palette["light_gray"], padx=10, pady=8)
             conta_item.pack(fill="x", pady=5, expand=True)
-            ttk.Label(conta_item, text=banco, style="TLabel").pack(side="left")
-            ttk.Label(conta_item, text=f"R$ {valor:,.2f}", style="TLabel").pack(side="right")
+            ttk.Label(conta_item, text=banco, style="TLabel", background=self.color_palette["light_gray"]).pack(side="left")
+            ttk.Label(conta_item, text=f"R$ {valor:,.2f}", style="TLabel", background=self.color_palette["light_gray"]).pack(side="right")
 
         total_contas = sum(valor for _, valor in self.contas)
         ttk.Label(contas_frame, text=f"Total R$ {total_contas:,.2f}", style="TLabel").pack(anchor="e", pady=5)
@@ -114,7 +114,7 @@ class WalletWindow(tk.Frame):
         cartoes_frame = tk.Frame(scrollable_frame, bg=self.color_palette["white"], padx=20, pady=15)
         cartoes_frame.pack(fill="both", expand=True) 
 
-        ttk.Label(cartoes_frame, text="Cartões de crédito", style="Title.TLabel").pack(anchor="w")
+        ttk.Label(cartoes_frame, text="Cartões de crédito", style="Title.TLabel", background=self.color_palette["white"]).pack(anchor="w")
 
         for nome, vencimento, valor in self.cartoes:
             cartao_item = tk.Frame(cartoes_frame, bg=self.color_palette["light_gray"], padx=10, pady=8)
@@ -122,10 +122,10 @@ class WalletWindow(tk.Frame):
             
             info_frame = tk.Frame(cartao_item, bg=self.color_palette["light_gray"])
             info_frame.pack(side="left", fill="x", expand=True)
-            ttk.Label(info_frame, text=nome, style="TLabel").pack(anchor="w")
-            ttk.Label(info_frame, text=vencimento, style="TLabel").pack(anchor="w")
+            ttk.Label(info_frame, text=nome, style="TLabel", background=self.color_palette["light_gray"]).pack(anchor="w")
+            ttk.Label(info_frame, text=vencimento, style="TLabel", background=self.color_palette["light_gray"]).pack(anchor="w")
             
-            ttk.Label(cartao_item, text=f"R$ {valor:,.2f}", style="TLabel").pack(side="right")
+            ttk.Label(cartao_item, text=f"R$ {valor:,.2f}", style="TLabel", background=self.color_palette["light_gray"]).pack(side="right")
 
         total_cartoes = sum(valor for _, _, valor in self.cartoes)
         ttk.Label(cartoes_frame, text=f"Total R$ {total_cartoes:,.2f}", style="TLabel").pack(anchor="e", pady=5)
