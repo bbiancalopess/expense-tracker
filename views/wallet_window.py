@@ -90,6 +90,10 @@ class WalletWindow(tk.Frame):
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
+        # Botão Adicionar Conta
+        add_btn = ttk.Button(scrollable_frame, text="Adicionar conta", style="TButton", command=self.open_add_account_window)
+        add_btn.pack(padx=15, pady=(0, 20), anchor="e") 
+
         # Contas
         contas_frame = tk.Frame(scrollable_frame, bg=self.color_palette["white"], padx=20, pady=15)
         contas_frame.pack(fill="both", pady=(0, 10), expand=True) 
@@ -104,11 +108,6 @@ class WalletWindow(tk.Frame):
 
         total_contas = sum(valor for _, valor in self.contas)
         ttk.Label(contas_frame, text=f"Total R$ {total_contas:,.2f}", style="TLabel").pack(anchor="e", pady=5)
-
-        # Botão Adicionar Conta
-        add_btn = ttk.Button(scrollable_frame, text="Adicionar conta", style="TButton", command=self.open_add_account_window)
-        add_btn.pack(fill="x", padx=20, pady=(0, 20)) 
-
 
         # Cartões
         cartoes_frame = tk.Frame(scrollable_frame, bg=self.color_palette["white"], padx=20, pady=15)
