@@ -27,9 +27,6 @@ class Transaction(ABC):
             date: Data (usa data atual se não informada)
             payment_method: Método de pagamento associado
         """
-        if amount <= 0:
-            raise ValueError("Valor da transação deve ser positivo")
-
         self._id = id
         self._amount = amount
         self._description = description
@@ -37,46 +34,72 @@ class Transaction(ABC):
         self._payment_method = payment_method
         self._transaction_type: str = ""  # Será definido nas subclasses
 
-    # Propriedades básicas
+    # --- Propriedades e Setters ---
     @property
     def id(self) -> Optional[int]:
         """Getter para ID da transação"""
         return self._id
+
+    @id.setter
+    def id(self, value: Optional[int]) -> None:
+        """Setter para ID"""
+        self._id = value
 
     @property
     def amount(self) -> float:
         """Getter para valor da transação"""
         return self._amount
 
+    @amount.setter
+    def amount(self, value: float) -> None:
+        """Setter para amount (valida se é positivo)"""
+        if value <= 0:
+            raise ValueError("Valor da transação deve ser positivo")
+        self._amount = value
+
     @property
     def description(self) -> str:
         """Getter para descrição"""
         return self._description
+
+    @description.setter
+    def description(self, value: str) -> None:
+        """Setter para description"""
+        self._description = value
 
     @property
     def date(self) -> datetime:
         """Getter para data"""
         return self._date
 
+    @date.setter
+    def date(self, value: datetime) -> None:
+        """Setter para date"""
+        self._date = value
+
     @property
     def payment_method(self) -> Optional[PaymentMethod]:
         """Getter para método de pagamento"""
         return self._payment_method
 
+    @payment_method.setter
+    def payment_method(self, value: Optional[PaymentMethod]) -> None:
+        """Setter para payment_method"""
+        self._payment_method = value
+
     @property
     def transaction_type(self) -> str:
-        """Getter para tipo de transação"""
+        """Getter para tipo de transação (apenas leitura)"""
         return self._transaction_type
 
-    # Métodos abstratos
-    @abstractmethod
+    # --- Métodos ---
     def to_dict(self) -> dict[str, any]:
         """Converte transação para dicionário (serialização)"""
         return {
             "id": self._id,
             "amount": self._amount,
             "description": self._description,
-            "date": self._date.isoformat(),  # Converte data para string ISO
+            "date": self._date.isoformat(),
             "payment_method_id": (
                 self._payment_method.id if self._payment_method else None
             ),
