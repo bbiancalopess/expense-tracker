@@ -1,47 +1,49 @@
-from src.models.payment_method.payment_method import PaymentMethod, PaymentType
+from src.models.payment_method.payment_method import PaymentMethod
+from src.models.payment_method.payment_type import PaymentType
 from typing import Optional
 
 
 class Debit(PaymentMethod):
+    """
+    Implementação concreta de PaymentMethod para cartões de débito.
+    Mais simples que o crédito, apenas verifica saldo disponível.
+    """
+
     def __init__(
         self,
-        id: Optional[int],
-        name: str,
+        id: Optional[int] = None,
+        name: str = "",
         balance: float = 0.0,
     ):
+        """Inicializa cartão de débito com saldo disponível"""
         super().__init__(id, name, balance)
-
-    @property
-    def payment_type(self) -> PaymentType:
-        return PaymentType.DEBIT
+        self._payment_type = PaymentType.DEBIT  # Define tipo específico
 
     def process_payment(self, amount: float) -> bool:
-        if amount > self.balance:
-            return False
-        self.balance -= amount
-        return True
+        """
+        Processa pagamento no débito.
 
-    def to_dict(self): #retirar
-        data = super().to_dict()
-        return data
+        Args:
+            amount: Valor a ser debitado
+
+        Returns:
+            bool: True se pagamento aprovado (saldo suficiente), False caso contrário
+
+        Raises:
+            ValueError: Se valor for inválido
+        """
+        if amount <= 0:
+            raise ValueError("Valor do pagamento deve ser positivo")
+        if amount > self._balance:
+            return False  # Saldo insuficiente
+        self._balance -= amount  # Debita do saldo
+        return True  # Pagamento aprovado
 
     @classmethod
-    def from_dict(cls, data: dict):
+    def from_dict(cls, data: dict[str, any]) -> "Debit":
+        """Cria instância de Debit a partir de dicionário"""
         return cls(
-            id=data.get("id"), name=data.get("name", ""), balance=data.get("balance", 0)
+            id=data.get("id"),
+            name=data.get("name", ""),
+            balance=data.get("balance", 0.0),
         )
-
-    @property
-    def id(self):
-        return self._id
-
-    @property
-    def balance(self):
-        return self._balance
-
-    @balance.setter
-    def balance(self, value: float) -> None:
-        """Setter para o saldo com validações"""
-        if value < 0:
-            raise ValueError("Balance cannot be negative")
-        self._balance = value
