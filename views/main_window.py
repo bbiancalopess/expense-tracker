@@ -1,9 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
-from views.components.transactions_panel import TransactionsPanel
 from views.add_transaction_window import AddTransactionWindow
 from views.wallet_window import WalletWindow
 from views.metrics_window import MetricsWindow
+from views.transactions_panel import TransactionsPanel
 
 class MainWindow(tk.Tk):
     def __init__(self):
