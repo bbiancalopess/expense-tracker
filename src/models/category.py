@@ -15,10 +15,7 @@ class Category:
 
     def to_dict(self) -> dict[str, any]:
         """Convert category to dictionary representation"""
-        return {
-            "id": self._id,
-            "name": self._name
-        }
+        return {"id": self._id, "name": self._name}
 
     @property
     def id(self) -> Optional[int]:
@@ -47,9 +44,6 @@ class Category:
         self._name = value.strip()
 
     @classmethod
-    def from_dict(cls, data: dict[str, any]) -> 'Category':
+    def from_dict(cls, data: dict[str, any]) -> "Category":
         """Create category instance from dictionary"""
-        return cls(
-            id=data.get('id'),
-            name=data['name']
-        )
+        return cls(id=data.get("id"), name=data["name"])

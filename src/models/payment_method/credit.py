@@ -8,7 +8,7 @@ class Credit(PaymentMethod):
     Implementação concreta de PaymentMethod para cartões de crédito.
     Adiciona funcionalidades específicas como limite de crédito e datas de vencimento.
     """
-    
+
     def __init__(
         self,
         id: Optional[int] = None,
@@ -20,7 +20,7 @@ class Credit(PaymentMethod):
     ):
         """
         Inicializa um cartão de crédito com características específicas.
-        
+
         Args:
             credit_limit: Limite total do cartão
             closing_day: Dia de fechamento da fatura
@@ -77,13 +77,13 @@ class Credit(PaymentMethod):
     def process_payment(self, amount: float) -> bool:
         """
         Processa um pagamento no crédito.
-        
+
         Args:
             amount: Valor a ser cobrado
-            
+
         Returns:
             bool: True se pagamento foi aprovado, False se recusado
-            
+
         Raises:
             ValueError: Se valor for inválido
         """
@@ -107,7 +107,7 @@ class Credit(PaymentMethod):
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, any]) -> 'Credit':
+    def from_dict(cls, data: dict[str, any]) -> "Credit":
         """Cria instância de Credit a partir de dicionário"""
         return cls(
             id=data.get("id"),
