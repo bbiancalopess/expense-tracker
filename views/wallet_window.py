@@ -29,8 +29,6 @@ class WalletWindow(tk.Frame):
         incomes_and_expenses = (
             self.transactions_service.find_current_month_totals_by_payment_method()
         )
-        print([c.to_dict() for c in contas])
-        print(incomes_and_expenses)
         total_balance = 0.0
         for c in contas:
             total_balance += c.balance
