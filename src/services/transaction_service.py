@@ -10,14 +10,14 @@ class TransactionService:
     Gerencia operações como registro, atualização e exclusão de transações.
     """
 
-    def __init__(self, repository: TransactionRepository):
+    def __init__(self):
         """
         Inicializa o serviço com o repositório de transações.
 
         Args:
             repository: Instância do TransactionRepository
         """
-        self.repo = repository
+        self.repo = TransactionRepository()
 
     def add_transaction(self, transaction: Transaction) -> Optional[Transaction]:
         """
@@ -37,6 +37,7 @@ class TransactionService:
             return None
 
         try:
+            print(transaction.to_dict())
             transaction_id = self.repo.save(transaction)
             if transaction_id:
                 transaction._id = transaction_id
@@ -116,3 +117,26 @@ class TransactionService:
         except Exception as e:
             print(f"Error deleting transaction {transaction_id}: {e}")
             return False
+
+    def find_current_month_totals_by_payment_method(
+        self,
+    ) -> dict[int, dict[str, float]]:
+        """
+        Retorna os totais de receitas e despesas do mês atual agrupados por método de pagamento.
+
+        Returns:
+            dict[int, dict[str, float]]:
+            - Chave: ID do método de pagamento
+            - Valor: Dicionário com:
+                - 'income': total de receitas no mês
+                - 'expense': total de despesas no mês
+
+        Raises:
+            Exception: Se ocorrer um erro ao acessar o repositório
+        """
+        try:
+            return self.repo.get_current_month_totals_by_payment_method()
+        except Exception as e:
+            error_msg = f"Error getting current month totals by payment method: {e}"
+            print(error_msg)
+            raise Exception(error_msg) from e

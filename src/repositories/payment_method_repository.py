@@ -12,8 +12,8 @@ class PaymentMethodRepository:
     Lida com os tipos específicos (Credit e Debit) de forma transparente.
     """
 
-    def __init__(self, db: DatabaseManager):
-        self.db = db
+    def __init__(self):
+        self.db = DatabaseManager()
 
     def __create_payment_from_dict(self, data: dict) -> Optional[PaymentMethod]:
         """

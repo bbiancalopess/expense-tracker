@@ -1,4 +1,5 @@
 from typing import Optional
+from datetime import datetime
 from src.database.db_manager import DatabaseManager
 from src.models.transaction.transaction import Transaction
 from src.models.transaction.income import Income
@@ -12,8 +13,8 @@ class TransactionRepository:
     Lida com os tipos Income e Expense de forma transparente.
     """
 
-    def __init__(self, db: DatabaseManager):
-        self.db = db
+    def __init__(self):
+        self.db = DatabaseManager()
 
     def __create_transaction_from_dict(self, data: dict) -> Optional[Transaction]:
         """
@@ -116,8 +117,8 @@ class TransactionRepository:
                     data["amount"],
                     data["description"],
                     data["date"],
-                    data["payment_method_id"],
-                    data.get("category_id"),
+                    data.get("payment_method", None).get("id", None),
+                    data.get("category", None).get("id", None),
                     data.get("current_installment", 1),
                     data.get("total_installments", 1),
                     data["id"],
@@ -161,3 +162,49 @@ class TransactionRepository:
             return self.db.delete(query, (transaction_id,)) > 0
         except Exception as e:
             raise Exception(f"Error deleting transaction {transaction_id}: {e}")
+
+    def get_current_month_totals_by_payment_method(self) -> dict[int, dict[str, float]]:
+        """
+        Retorna os totais de incomes e expenses do mês atual agrupados por payment_method.
+
+        Returns:
+            Dict[int, Dict[str, float]]:
+            - Chave: payment_method_id
+            - Valor: Dicionário com:
+                - 'income': soma total de incomes do mês
+                - 'expense': soma total de expenses do mês
+        """
+        try:
+            current_month = datetime.now().month
+            current_year = datetime.now().year
+
+            query = """
+                SELECT 
+                    payment_method_id,
+                    SUM(CASE WHEN type = ? THEN amount ELSE 0 END) as income_total,
+                    SUM(CASE WHEN type = ? THEN amount ELSE 0 END) as expense_total
+                FROM transactions
+                WHERE payment_method_id IS NOT NULL
+                AND strftime('%m', date) = ?
+                AND strftime('%Y', date) = ?
+                GROUP BY payment_method_id;
+            """
+            params = (
+                TransactionType.INCOME,
+                TransactionType.EXPENSE,
+                f"{current_month:02d}",
+                str(current_year),
+            )
+
+            results = self.db.select(query, params)
+
+            return {
+                row["payment_method_id"]: {
+                    "income": row["income_total"] or 0.0,
+                    "expense": row["expense_total"] or 0.0,
+                }
+                for row in results
+            }
+
+        except Exception as e:
+            raise Exception(f"Error getting current month transaction totals: {e}")

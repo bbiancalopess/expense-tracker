@@ -2,6 +2,13 @@ import tkinter as tk
 from tkinter import ttk
 from tkcalendar import DateEntry
 from datetime import datetime
+from src.services.transaction_service import TransactionService
+from src.models.transaction.income import Income
+from src.models.transaction.expense import Expense
+from views.add_category_window import AddCategoryWindow
+from src.services.category_service import CategoryService
+from src.services.payment_method_service import PaymentMethodService
+from src.models.payment_method.payment_type import PaymentType
 
 
 class AddTransactionWindow(tk.Toplevel):
@@ -24,6 +31,12 @@ class AddTransactionWindow(tk.Toplevel):
             "dark_red": "#9b2226",
             "medium_red": "#ae2012",
         }
+        self.categories_data = {}
+
+        self.transaction_service = TransactionService()
+        self.category_service = CategoryService()
+        self.payment_method_service = PaymentMethodService()
+        self.payment_methods_data = {}
 
         self.configure(bg=self.colors["light_gray"])
         self.create_widgets()
@@ -220,13 +233,18 @@ class AddTransactionWindow(tk.Toplevel):
         self.payment_frame = tk.Frame(self.main_form_frame, bg=self.colors["white"])
         self.payment_frame.pack(fill="x", pady=(0, 15))
 
+        payment_methods = self.payment_method_service.get_all_payment_methods()
+        self.payment_methods_data = {pm.name: pm for pm in payment_methods}
+
+        payment_names = list(self.payment_methods_data.keys())
+
         # Forma de Pagamento
         ttk.Label(self.payment_frame, text="Forma de Pagamento *").pack(
             anchor="w", pady=(0, 5)
         )
         self.payment_method = ttk.Combobox(
             self.payment_frame,
-            values=["Débito", "Crédito"],
+            values=payment_names,
             font=("Segoe UI", 10),
             state="readonly",
         )
@@ -239,9 +257,10 @@ class AddTransactionWindow(tk.Toplevel):
         self.installments_frame.pack_forget()
 
     def show_categories(self):
-        """Mostra o campo de categorias"""
+        """Mostra o campo de categorias com opção de exclusão"""
         # Remove os frames se já existirem
-        self.categories_frame.pack_forget()
+        if hasattr(self, "categories_frame"):
+            self.categories_frame.pack_forget()
 
         # Recria o frame de categorias
         self.categories_frame = tk.Frame(self.main_form_frame, bg=self.colors["white"])
@@ -251,14 +270,111 @@ class AddTransactionWindow(tk.Toplevel):
         ttk.Label(self.categories_frame, text="Categoria *").pack(
             anchor="w", pady=(0, 5)
         )
+
+        # Obtém categorias existentes
+        self.categories_data = {
+            c.name: c for c in self.category_service.get_all_categories()
+        }
+        category_names = list(self.categories_data.keys())
+        category_names.append("Adicionar nova categoria")
+
+        # Cria o frame para o ícone e combobox
+        self.combo_icon_frame = tk.Frame(self.categories_frame)
+        self.combo_icon_frame.pack(fill="x", pady=(0, 15))
+
+        # Cria o Combobox
         self.categories = ttk.Combobox(
-            self.categories_frame,
-            values=["Alimentação", "Transporte", "Saúde", "Lazer", "Outros"],
+            self.combo_icon_frame,
+            values=category_names,
             font=("Segoe UI", 10),
             state="readonly",
         )
-        self.categories.pack(fill="x", pady=(0, 15))
+
+        self.categories.pack(side="left", fill="x", expand=True)
+
+        # Ícone de lixeira (menu de contexto)
+        self.trash_icon = tk.PhotoImage(file="views/icons/trash.png").subsample(30, 30)
+        self.trash_button = tk.Button(
+            self.combo_icon_frame,
+            image=self.trash_icon,
+            relief="flat",
+            command=self.delete_category,
+            cursor="hand2",
+        )
+        self.trash_button.pack(side="left", padx=(5, 0))
+        self.trash_button.pack_forget()
+
+        # Vincula os eventos
+        self.categories.bind("<<ComboboxSelected>>", self.on_category_selected)
         self.categories_frame.pack(fill="x", pady=(0, 15))
+
+    def on_category_selected(self, event=None):
+        """Lida com a seleção de categoria"""
+        selected = self.categories.get()
+
+        if selected == "Adicionar nova categoria":
+            self.show_add_category_window()
+            self.categories.set("")
+            self.trash_button.pack_forget()
+        else:
+            # Mostra o botão de lixeira para categorias normais
+            self.trash_button.pack(side="right", padx=(5, 0))
+
+    def show_category_context_menu(self):
+        """Mostra menu de contexto com opção de excluir"""
+        selected_category = self.categories.get()
+        if not selected_category or selected_category == "Adicionar nova categoria":
+            return
+
+        menu = tk.Menu(self, tearoff=0)
+        menu.add_command(
+            label=f"Excluir '{selected_category}'",
+            command=lambda: self.delete_category(selected_category),
+        )
+
+        # Posiciona o menu próximo ao botão
+        x = self.context_menu_btn.winfo_rootx()
+        y = self.context_menu_btn.winfo_rooty() + self.context_menu_btn.winfo_height()
+        menu.post(x, y)
+
+    def delete_category(self):
+        """Exclui a categoria selecionada"""
+        selected_name = self.categories.get()
+        if selected_name == "Adicionar nova categoria":
+            return
+
+        if tk.messagebox.askyesno(
+            "Confirmar Exclusão",
+            f"Tem certeza que deseja excluir a categoria '{selected_name}'?\n"
+            "Isso afetará todas as transações associadas.",
+        ):
+            try:
+                selected_category = self.categories_data.get(selected_name)
+                if selected_category:
+                    self.category_service.delete_category(selected_category.id)
+
+                    self.show_categories()
+                tk.messagebox.showinfo("Sucesso", "Categoria excluída com sucesso!")
+            except Exception as e:
+                tk.messagebox.showerror("Erro", f"Falha ao excluir categoria: {str(e)}")
+
+    def show_add_category_window(self):
+        """Abre a janela para adicionar nova categoria"""
+
+        def update_categories(new_category):
+            """Atualiza a lista de categorias"""
+            if (
+                new_category.name not in self.categories_data
+                and new_category.name != "Adicionar nova categoria"
+            ):
+                self.categories_data[new_category.name] = new_category
+                updated_names = list(self.categories_data.keys())
+                updated_names.sort()
+                updated_names.append("Adicionar nova categoria")
+                self.categories["values"] = updated_names
+                self.categories.set(new_category.name)
+
+        AddCategoryWindow(self, callback=update_categories)
 
     def hide_categories(self):
         """Esconde o campo de categorias"""
@@ -300,10 +416,13 @@ class AddTransactionWindow(tk.Toplevel):
 
     def on_payment_method_change(self, event=None):
         """Lida com a mudança no método de pagamento"""
-        if self.payment_method.get() == "Crédito":
-            self.show_installments_field()
-        else:
-            self.hide_installments_field()
+        selected_name = self.payment_method.get()
+        if selected_name in self.payment_methods_data:
+            selected_method = self.payment_methods_data[selected_name]
+            if selected_method.payment_type == PaymentType.CREDIT:
+                self.show_installments_field()
+            else:
+                self.hide_installments_field()
 
     def validate_numeric_input(self, new_text):
         """Permite apenas números, ponto ou vírgula decimal"""
@@ -335,9 +454,12 @@ class AddTransactionWindow(tk.Toplevel):
         date = self.date_entry.get_date()
         value = self.entry_value.get()
         description = self.desc_entry.get()
-        payment_method = self.payment_method.get()
-        category = self.categories.get()
-        installment = self.installments.get()
+
+        payment_method = (
+            self.payment_method.get() if hasattr(self, "payment_method") else None
+        )
+        category = self.categories.get() if hasattr(self, "categories") else None
+        installment = self.installments.get() if hasattr(self, "installment") else None
 
         # Validação
         errors = []
@@ -351,22 +473,24 @@ class AddTransactionWindow(tk.Toplevel):
                     errors.append("Valor deve ser positivo")
             except ValueError:
                 errors.append("Valor inválido (use números com . ou , para decimais)")
-        if not category:
-            errors.append("Selecione uma categoria")
-        if not payment_method:
-            errors.append("Selecione uma forma de pagamento")
-        if not transaction_type:
-            errors.append("Selecione um tipo de transação")
+
         if not date:
             errors.append("Selecione uma data")
+        if not transaction_type:
+            errors.append("Selecione um tipo de transação")
 
-        if payment_method == "Crédito" and not hasattr(self, "installments"):
-            errors.append("Selecione o número de parcelas")
-
-        if int(installment) > 360 or int(installment) <= 0:
-            errors.append(
-                "Valor inválido, o número de parcelas tem que estar entre 0 e 360"
-            )
+        if transaction_type == "Despesa":
+            if not category:
+                errors.append("Selecione uma categoria")
+            if not payment_method:
+                errors.append("Selecione uma forma de pagamento")
+            if payment_method == "Crédito":
+                try:
+                    installment = int(installment) if installment else 0
+                    if installment <= 0 or installment > 360:
+                        errors.append("Número de parcelas deve ser entre 1 e 360")
+                except (ValueError, TypeError):
+                    errors.append("Número de parcelas inválido")
 
         if errors:
             tk.messagebox.showerror(
@@ -375,20 +499,44 @@ class AddTransactionWindow(tk.Toplevel):
             )
             return
 
+        payment_method_name = (
+            self.payment_method.get() if hasattr(self, "payment_method") else None
+        )
+        payment_method = (
+            self.payment_methods_data.get(payment_method_name)
+            if payment_method_name
+            else None
+        )
+
         # Formatar dados
         transaction_data = {
-            "type": transaction_type,
-            "date": date.strftime("%d/%m/%Y"),
-            "value": value,
+            "date": date.strftime("%Y-%m-%d"),
+            "amount": value,
             "description": description,
-            "payment_method": payment_method,
-            "category": category,
-            "installments": getattr(self, "installments", None)
-            and self.installments.get(),
+            "payment_method_id": payment_method.id if payment_method else None,
         }
 
-        # Aqui você conectaria com o backend para salvar
-        print("Transação salva:", transaction_data)
+        try:
+            if transaction_type == "Receita":
+                transaction = Income.from_dict(transaction_data)
+            elif transaction_type == "Despesa":
+                category_obj = self.categories_data.get(category) if category else None
+                transaction_data.update(
+                    {
+                        "category_id": category_obj.id if category_obj else None,
+                        "total_installments": int(installment) if installment else 1,
+                        "current_installment": 1,
+                    }
+                )
+                transaction = Expense.from_dict(transaction_data)
+            else:
+                raise ValueError("Tipo de transação inválido")
 
-        # Fechar a janela após salvar
-        self.destroy()
+            result = self.transaction_service.add_transaction(transaction)
+            if not result:
+                raise Exception("Falha ao salvar transação")
+
+            tk.messagebox.showinfo("Sucesso", f"Transação adicionada com sucesso!")
+            self.destroy()
+        except Exception as e:
+            tk.messagebox.showerror("Erro", f"Falha ao salvar transação: {str(e)}")

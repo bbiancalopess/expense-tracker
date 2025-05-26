@@ -9,14 +9,14 @@ class PaymentMethodService:
     Gerencia operações como adição, atualização e processamento de pagamentos.
     """
 
-    def __init__(self, repository: PaymentMethodRepository):
+    def __init__(self):
         """
         Inicializa o serviço com o repositório de métodos de pagamento.
 
         Args:
             repository: Instância do PaymentMethodRepository
         """
-        self.repo = repository
+        self.repo = PaymentMethodRepository()
 
     def add_payment_method(self, payment: PaymentMethod) -> Optional[PaymentMethod]:
         """
@@ -42,7 +42,7 @@ class PaymentMethodService:
             print(f"Error adding payment method: {e}")
             return None
 
-    def get_all_payments(self) -> list[PaymentMethod]:
+    def get_all_payment_methods(self) -> list[PaymentMethod]:
         """
         Recupera todos os métodos de pagamento cadastrados.
 
@@ -55,7 +55,7 @@ class PaymentMethodService:
             print(f"Error getting all payment methods: {e}")
             return []
 
-    def get_payment_by_id(self, payment_id: int) -> Optional[PaymentMethod]:
+    def get_payment_method_by_id(self, payment_id: int) -> Optional[PaymentMethod]:
         """
         Busca um método de pagamento pelo seu ID.
 
@@ -75,7 +75,7 @@ class PaymentMethodService:
             print(f"Error getting payment method by ID {payment_id}: {e}")
             return None
 
-    def update_payment(self, payment: PaymentMethod) -> bool:
+    def update_payment_method(self, payment: PaymentMethod) -> bool:
         """
         Atualiza os dados de um método de pagamento existente.
 
@@ -94,7 +94,7 @@ class PaymentMethodService:
             print(f"Error updating payment method {payment.id}: {e}")
             return False
 
-    def delete_payment(self, payment_id: int) -> bool:
+    def delete_payment_method(self, payment_id: int) -> bool:
         """
         Remove um método de pagamento do sistema.
 
@@ -130,14 +130,14 @@ class PaymentMethodService:
             return False
 
         try:
-            payment = self.get_payment_by_id(payment_id)
+            payment = self.get_payment_method_by_id(payment_id)
             if not payment:
                 return False
 
             try:
                 success = payment.process_payment(amount)
                 if success:
-                    self.update_payment(payment)
+                    self.update_payment_method(payment)
                 return success
             except Exception as e:
                 print(f"Error processing payment: {e}")

@@ -10,14 +10,14 @@ class CategoryService:
     podendo incluir lógica de negócio adicional.
     """
 
-    def __init__(self, repository: CategoryRepository):
+    def __init__(self):
         """
         Inicializa o serviço com o repositório de categorias.
 
         Args:
             repository: Instância do CategoryRepository para operações de persistência
         """
-        self.repo = repository
+        self.repo = CategoryRepository()
 
     def add_category(self, category: Category) -> Optional[Category]:
         """

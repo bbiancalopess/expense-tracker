@@ -1,10 +1,15 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+from src.services.payment_method_service import PaymentMethodService
+from src.models.payment_method.debit import Debit
+from src.models.payment_method.credit import Credit
+from src.models.payment_method.payment_type import PaymentType
 
 
 class AddAccountWindow(tk.Toplevel):
-    def __init__(self, master=None):
+    def __init__(self, master=None, wallet_window=None):
         super().__init__(master)
+        self.wallet_window = wallet_window
         self.title("Adicionar Nova Conta")
         self.geometry("650x700")
         self.minsize(500, 600)
@@ -22,6 +27,8 @@ class AddAccountWindow(tk.Toplevel):
             "dark_red": "#9b2226",
             "medium_red": "#ae2012",
         }
+
+        self.payment_method_service = PaymentMethodService()
 
         self.configure(bg=self.colors["light_gray"])
         self.create_widgets()
@@ -110,7 +117,7 @@ class AddAccountWindow(tk.Toplevel):
         # Campo para o nome do banco
         bank_label = tk.Label(
             self.form_frame,
-            text="Banco *",
+            text="Nome *",
             bg=self.colors["white"],
             fg=self.colors["dark_blue"],
         )
@@ -171,6 +178,24 @@ class AddAccountWindow(tk.Toplevel):
 
         self.credit_card_frame = tk.Frame(self.form_frame, bg=self.colors["white"])
         self.credit_card_frame.pack(fill="x", pady=(10, 0))
+
+        self.limit_label = tk.Label(
+            self.credit_card_frame,
+            text="Limite *",
+            bg=self.colors["white"],
+            fg=self.colors["dark_blue"],
+        )
+        self.limit_label.pack(anchor="w", pady=(5, 0))
+
+        self.limit_var = tk.StringVar()
+        vcmd_limit = (self.register(self.validate_numeric_input), "%P")
+        self.limit_entry = ttk.Entry(
+            self.credit_card_frame,
+            textvariable=self.limit_var,
+            validate="key",
+            validatecommand=vcmd_limit,
+        )
+        self.limit_entry.pack(fill="x", padx=5, pady=(0, 10))
 
         # Dia de vencimento
         due_day_label = tk.Label(
@@ -255,7 +280,7 @@ class AddAccountWindow(tk.Toplevel):
         # Validação básica
         errors = []
         if not bank:
-            errors.append("Nome do banco é obrigatório")
+            errors.append("Nome da conta é obrigatório")
         if not account_type:
             errors.append("Tipo de conta é obrigatório")
         if not balance:
@@ -271,7 +296,15 @@ class AddAccountWindow(tk.Toplevel):
         if account_type == "Crédito":
             due_day = self.due_day_var.get()
             closing_day = self.closing_day_var.get()
+            credit_limit = self.limit_var.get()
 
+            if credit_limit < balance:
+                errors.append(
+                    "Limite de crédito não pode ser maior que o saldo inicial"
+                )
+
+            if not credit_limit:
+                errors.append("Limite é obrigatório para cartões de crédito")
             if not due_day:
                 errors.append("Dia de vencimento é obrigatório para cartões de crédito")
             elif not self.validate_day_input(due_day):
@@ -296,19 +329,33 @@ class AddAccountWindow(tk.Toplevel):
             balance_value = 0.0
 
         account_data = {
-            "bank": bank,
+            "name": bank,
             "balance": balance_value,
-            "type": account_type,
+            "type": PaymentType.DEBIT,
         }
 
         # Adiciona dados específicos de cartão de crédito
         if account_type == "Crédito":
             account_data.update(
-                {"due_day": int(due_day), "closing_day": int(closing_day)}
+                {
+                    "due_day": int(due_day),
+                    "closing_day": int(closing_day),
+                    "type": PaymentType.CREDIT,
+                    "credit_limit": float(credit_limit),
+                }
             )
 
-        # Aqui adicionar a lógica para salvar no banco de dados
-        print("Conta salva:", account_data)
+        if account_data["type"] == PaymentType.DEBIT:
+            self.payment_method_service.add_payment_method(
+                payment=Debit().from_dict(account_data)
+            )
+        elif account_data["type"] == PaymentType.CREDIT:
+            self.payment_method_service.add_payment_method(
+                payment=Credit().from_dict(account_data)
+            )
+        else:
+            messagebox.showerror("Falha ao salvar. Tipo de conta inválido.")
 
+        self.wallet_window.refresh()
         # Fecha a janela
         self.destroy()

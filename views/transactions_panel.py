@@ -1,11 +1,15 @@
 import tkinter as tk
 from tkinter import ttk
+from src.services.transaction_service import TransactionService
+from src.models.transaction.transaction_type import TransactionType
+from src.models.transaction.expense import Expense
 
 
 class TransactionsPanel(tk.Frame):
     def __init__(self, parent, color_palette):
         super().__init__(parent, bg=color_palette["light_gray"])
         self.color_palette = color_palette
+        self.transaction_service = TransactionService()
         self.create_widgets()
 
     def create_widgets(self):
@@ -41,44 +45,24 @@ class TransactionsPanel(tk.Frame):
         )
 
         # Lista de transações
-        transactions = [
-            {
-                "type": "Receita",
-                "date": "10/05",
-                "category": "Salário",
-                "amount": "R$ 800,00",
-            },
-            {
-                "type": "Receita",
-                "date": "11/05",
-                "category": "Supermercado",
-                "amount": "R$ 200,00",
-            },
-            {
-                "type": "Despesa",
-                "date": "12/05",
-                "category": "Transporte",
-                "amount": "R$ 50,00",
-            },
-            {
-                "type": "Despesa",
-                "date": "13/05",
-                "category": "Lazer",
-                "amount": "R$ 100,00",
-            },
-        ]
+        transactions = self.transaction_service.get_all_transactions()
 
         for i, transaction in enumerate(transactions, start=1):
-            ttk.Label(table, text=transaction["type"], style="TLabel").grid(
+            category = transaction.category if isinstance(transaction, Expense) else ""
+            transaction_type = TransactionType.get_visual_label(
+                transaction_type=transaction.transaction_type
+            )
+
+            ttk.Label(table, text=transaction_type, style="TLabel").grid(
                 row=i, column=0, sticky="w", padx=5, pady=2
             )
-            ttk.Label(table, text=transaction["date"], style="TLabel").grid(
-                row=i, column=1, sticky="w", padx=5, pady=2
-            )
-            ttk.Label(table, text=transaction["category"], style="TLabel").grid(
+            ttk.Label(
+                table, text=transaction.date.strftime("%d/%m/%Y"), style="TLabel"
+            ).grid(row=i, column=1, sticky="w", padx=5, pady=2)
+            ttk.Label(table, text=category, style="TLabel").grid(
                 row=i, column=2, sticky="w", padx=5, pady=2
             )
-            ttk.Label(table, text=transaction["amount"], style="TLabel").grid(
+            ttk.Label(table, text=f"R${transaction.amount}", style="TLabel").grid(
                 row=i, column=3, sticky="e", padx=5, pady=2
             )
 

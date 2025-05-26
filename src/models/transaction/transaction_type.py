@@ -17,3 +17,9 @@ class TransactionType:
     def validate(cls, transaction_type: str) -> bool:
         """Verifica se um tipo de transação é válido"""
         return transaction_type in cls.get_types()
+
+    @classmethod
+    def get_visual_label(cls, transaction_type: str) -> str:
+        if transaction_type == cls.INCOME:
+            return "Receita"
+        return "Despesa"
