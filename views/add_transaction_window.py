@@ -458,7 +458,11 @@ class AddTransactionWindow(tk.Toplevel):
         payment_method_name = (
             self.payment_method.get() if hasattr(self, "payment_method") else None
         )
-        payment_method = self.payment_methods_data.get(payment_method_name) if payment_method_name else None
+        payment_method = (
+            self.payment_methods_data.get(payment_method_name)
+            if payment_method_name
+            else None
+        )
 
         category_name = self.categories.get() if hasattr(self, "categories") else None
         category = self.categories_data.get(category_name) if category_name else None

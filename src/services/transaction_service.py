@@ -38,11 +38,15 @@ class TransactionService:
             return None
         if isinstance(transaction, Expense):
             if transaction.category and not transaction.category.id:
-                saved_category = self.category_service.add_category(transaction.category)
+                saved_category = self.category_service.add_category(
+                    transaction.category
+                )
                 transaction.category = saved_category
 
             if transaction.payment_method and not transaction.payment_method.id:
-                saved_payment = self.payment_service.add_payment_method(transaction.payment_method)
+                saved_payment = self.payment_service.add_payment_method(
+                    transaction.payment_method
+                )
                 transaction.payment_method = saved_payment
         try:
             transaction_id = self.repo.save(transaction)

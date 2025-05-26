@@ -36,29 +36,35 @@ class TransactionRepository:
         try:
             payment_method = None
             if data.get("payment_method_id"):
-                payment_method = self.payment_method_service.get_payment_method_by_id(data["payment_method_id"])
-            
+                payment_method = self.payment_method_service.get_payment_method_by_id(
+                    data["payment_method_id"]
+                )
+
             category = None
             if data.get("category_id"):
                 category = self.category_service.get_category_by_id(data["category_id"])
-                        
+
             if data["type"] == TransactionType.INCOME:
                 return Income(
                     id=data.get("id"),
                     amount=data["amount"],
                     description=data.get("description", ""),
-                    date=datetime.fromisoformat(data["date"]) if "date" in data else None
+                    date=(
+                        datetime.fromisoformat(data["date"]) if "date" in data else None
+                    ),
                 )
             elif data["type"] == TransactionType.EXPENSE:
                 return Expense(
                     id=data.get("id"),
                     amount=data["amount"],
                     description=data.get("description", ""),
-                    date=datetime.fromisoformat(data["date"]) if "date" in data else None,
+                    date=(
+                        datetime.fromisoformat(data["date"]) if "date" in data else None
+                    ),
                     payment_method=payment_method,
                     category=category,
                     current_installment=data.get("current_installment", 1),
-                    total_installments=data.get("total_installments", 1)
+                    total_installments=data.get("total_installments", 1),
                 )
             return None
         except Exception as e:
