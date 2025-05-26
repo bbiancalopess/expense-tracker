@@ -81,6 +81,6 @@ class PaymentMethod(ABC):
 
     @classmethod
     @abstractmethod
-    def from_dict(cls, data: dict[str, any]) -> "PaymentMethod":
+    def from_dict(cls, data: dict[str, any]):
         """Cria instância a partir de dicionário (desserialização)"""
         pass

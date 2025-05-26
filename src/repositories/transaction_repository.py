@@ -5,6 +5,8 @@ from src.models.transaction.transaction import Transaction
 from src.models.transaction.income import Income
 from src.models.transaction.expense import Expense
 from src.models.transaction.transaction_type import TransactionType
+from src.services.payment_method_service import PaymentMethodService
+from src.services.category_service import CategoryService
 
 
 class TransactionRepository:
@@ -15,6 +17,8 @@ class TransactionRepository:
 
     def __init__(self):
         self.db = DatabaseManager()
+        self.payment_method_service = PaymentMethodService()
+        self.category_service = CategoryService()
 
     def __create_transaction_from_dict(self, data: dict) -> Optional[Transaction]:
         """
@@ -30,10 +34,32 @@ class TransactionRepository:
             return None
 
         try:
+            payment_method = None
+            if data.get("payment_method_id"):
+                payment_method = self.payment_method_service.get_payment_method_by_id(data["payment_method_id"])
+            
+            category = None
+            if data.get("category_id"):
+                category = self.category_service.get_category_by_id(data["category_id"])
+                        
             if data["type"] == TransactionType.INCOME:
-                return Income.from_dict(data)
+                return Income(
+                    id=data.get("id"),
+                    amount=data["amount"],
+                    description=data.get("description", ""),
+                    date=datetime.fromisoformat(data["date"]) if "date" in data else None
+                )
             elif data["type"] == TransactionType.EXPENSE:
-                return Expense.from_dict(data)
+                return Expense(
+                    id=data.get("id"),
+                    amount=data["amount"],
+                    description=data.get("description", ""),
+                    date=datetime.fromisoformat(data["date"]) if "date" in data else None,
+                    payment_method=payment_method,
+                    category=category,
+                    current_installment=data.get("current_installment", 1),
+                    total_installments=data.get("total_installments", 1)
+                )
             return None
         except Exception as e:
             raise Exception(f"Error creating transaction from dict: {e}")
@@ -104,6 +130,12 @@ class TransactionRepository:
         try:
             data = transaction.to_dict()
 
+            if isinstance(transaction, Expense):
+                if transaction.payment_method:
+                    data["payment_method_id"] = transaction.payment_method.id
+                if transaction.category:
+                    data["category_id"] = transaction.category.id
+
             if transaction.id:
                 # Atualização
                 query = """
@@ -117,8 +149,8 @@ class TransactionRepository:
                     data["amount"],
                     data["description"],
                     data["date"],
-                    data.get("payment_method", None).get("id", None),
-                    data.get("category", None).get("id", None),
+                    data.get("payment_method_id", None),
+                    data.get("category_id", None),
                     data.get("current_installment", 1),
                     data.get("total_installments", 1),
                     data["id"],

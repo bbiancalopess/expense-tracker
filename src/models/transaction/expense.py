@@ -84,21 +84,18 @@ class Expense(Transaction):
     @classmethod
     def from_dict(cls, data: dict[str, any]) -> "Expense":
         """Cria Expense a partir de dicionário"""
+        payment_method = data.get("payment_method")
+
+        if not payment_method and "payment_method_id" in data:
+            payment_method = PaymentMethod(id=data["payment_method_id"])
+
         return cls(
             id=data.get("id"),
             amount=data["amount"],
             description=data.get("description", ""),
             date=datetime.fromisoformat(data["date"]) if "date" in data else None,
-            payment_method=(
-                PaymentMethod(id=data.get("payment_method_id"))
-                if data.get("payment_method_id")
-                else None
-            ),
-            category=(
-                Category(id=data.get("category_id"))
-                if data.get("category_id")
-                else None
-            ),
+            payment_method=data.get("payment_method"),
+            category=data.get("category"),
             current_installment=data.get("current_installment", 1),
             total_installments=data.get("total_installments", 1),
         )

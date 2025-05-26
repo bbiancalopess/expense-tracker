@@ -29,17 +29,16 @@ class WalletWindow(tk.Frame):
         incomes_and_expenses = (
             self.transactions_service.find_current_month_totals_by_payment_method()
         )
-        print([c.to_dict() for c in contas])
-        print(incomes_and_expenses)
         total_balance = 0.0
+        total_incomes = 0.0
+        total_expenses = 0.0
+
         for c in contas:
             total_balance += c.balance
 
-        total_incomes = 0.0
-        total_expenses = 0.0
-        for ie in incomes_and_expenses:
-            total_incomes += ie["income"]
-            total_expenses += ie["expense"]
+        for payment_id, values in incomes_and_expenses.items():
+            total_incomes += values.get("income", 0.0)
+            total_expenses += values.get("expense", 0.0)
 
         # Frame principal que ocupa todo o espaço
         main_frame = tk.Frame(self, bg=self.color_palette["light_gray"])

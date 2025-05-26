@@ -48,7 +48,7 @@ class TransactionsPanel(tk.Frame):
         transactions = self.transaction_service.get_all_transactions()
 
         for i, transaction in enumerate(transactions, start=1):
-            category = transaction.category if isinstance(transaction, Expense) else ""
+            category = transaction.category.name if isinstance(transaction, Expense) else ""
             transaction_type = TransactionType.get_visual_label(
                 transaction_type=transaction.transaction_type
             )

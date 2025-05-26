@@ -1,6 +1,8 @@
 from src.repositories.transaction_repository import TransactionRepository
 from src.models.transaction.transaction import Transaction
 from src.models.transaction.expense import Expense
+from src.services.payment_method_service import PaymentMethodService
+from src.services.category_service import CategoryService
 from typing import Optional
 
 
@@ -18,6 +20,8 @@ class TransactionService:
             repository: Instância do TransactionRepository
         """
         self.repo = TransactionRepository()
+        self.payment_service = PaymentMethodService()
+        self.category_service = CategoryService()
 
     def add_transaction(self, transaction: Transaction) -> Optional[Transaction]:
         """
@@ -32,12 +36,15 @@ class TransactionService:
         """
         if not isinstance(transaction, Transaction):
             return None
-        if isinstance(transaction, Expense) and not transaction.category:
-            print("Expense must have a category")
-            return None
+        if isinstance(transaction, Expense):
+            if transaction.category and not transaction.category.id:
+                saved_category = self.category_service.add_category(transaction.category)
+                transaction.category = saved_category
 
+            if transaction.payment_method and not transaction.payment_method.id:
+                saved_payment = self.payment_service.add_payment_method(transaction.payment_method)
+                transaction.payment_method = saved_payment
         try:
-            print(transaction.to_dict())
             transaction_id = self.repo.save(transaction)
             if transaction_id:
                 transaction._id = transaction_id

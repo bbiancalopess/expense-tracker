@@ -455,10 +455,14 @@ class AddTransactionWindow(tk.Toplevel):
         value = self.entry_value.get()
         description = self.desc_entry.get()
 
-        payment_method = (
+        payment_method_name = (
             self.payment_method.get() if hasattr(self, "payment_method") else None
         )
-        category = self.categories.get() if hasattr(self, "categories") else None
+        payment_method = self.payment_methods_data.get(payment_method_name) if payment_method_name else None
+
+        category_name = self.categories.get() if hasattr(self, "categories") else None
+        category = self.categories_data.get(category_name) if category_name else None
+
         installment = self.installments.get() if hasattr(self, "installment") else None
 
         # Validação
@@ -499,33 +503,23 @@ class AddTransactionWindow(tk.Toplevel):
             )
             return
 
-        payment_method_name = (
-            self.payment_method.get() if hasattr(self, "payment_method") else None
-        )
-        payment_method = (
-            self.payment_methods_data.get(payment_method_name)
-            if payment_method_name
-            else None
-        )
-
         # Formatar dados
         transaction_data = {
             "date": date.strftime("%Y-%m-%d"),
             "amount": value,
             "description": description,
-            "payment_method_id": payment_method.id if payment_method else None,
         }
 
         try:
             if transaction_type == "Receita":
                 transaction = Income.from_dict(transaction_data)
             elif transaction_type == "Despesa":
-                category_obj = self.categories_data.get(category) if category else None
                 transaction_data.update(
                     {
-                        "category_id": category_obj.id if category_obj else None,
+                        "category": category,
                         "total_installments": int(installment) if installment else 1,
                         "current_installment": 1,
+                        "payment_method": payment_method,
                     }
                 )
                 transaction = Expense.from_dict(transaction_data)
