@@ -293,7 +293,7 @@ class AddTransactionWindow(tk.Toplevel):
         self.categories.pack(side="left", fill="x", expand=True)
 
         # Ícone de lixeira (menu de contexto)
-        self.trash_icon = tk.PhotoImage(file="views/icons/trash.png").subsample(30, 30)
+        self.trash_icon = tk.PhotoImage(file="views/icons/trash.png").subsample(40, 40)
         self.trash_button = tk.Button(
             self.combo_icon_frame,
             image=self.trash_icon,
