@@ -153,15 +153,15 @@ class WalletWindow(tk.Frame):
                 ).pack(side="left")
                 # Botão de ícone de lixeira
                 trash_icon = tk.PhotoImage(file="views/icons/trash.png").subsample(
-                    35, 35
+                    40, 40
                 )
                 trash_button = tk.Button(
                     conta_item,
                     image=trash_icon,
                     relief="flat",
-                    borderwidth=0,
                     cursor="hand2",
                     command=lambda c_id=conta.id: self.remove_account(c_id),
+                    background=self.color_palette["light_gray"],
                 )
                 trash_button.image = trash_icon
                 trash_button.pack(side="right", padx=10)
@@ -226,15 +226,15 @@ class WalletWindow(tk.Frame):
                 ).pack(side="left")
                 # Botão de ícone de lixeira
                 trash_icon = tk.PhotoImage(file="views/icons/trash.png").subsample(
-                    35, 35
+                    40, 40
                 )
                 trash_button = tk.Button(
                     cartao_item,
                     image=trash_icon,
                     relief="flat",
-                    borderwidth=0,
                     cursor="hand2",
                     command=lambda c_id=conta.id: self.remove_account(c_id),
+                    background=self.color_palette["light_gray"],
                 )
                 trash_button.image = trash_icon
                 trash_button.pack(side="right", padx=10)
