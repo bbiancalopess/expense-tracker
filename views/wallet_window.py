@@ -34,7 +34,8 @@ class WalletWindow(tk.Frame):
         total_expenses = 0.0
 
         for c in contas:
-            total_balance += c.balance
+            if c.payment_type == PaymentType.DEBIT:
+                total_balance += c.balance
 
         for payment_id, values in incomes_and_expenses.items():
             total_incomes += values.get("income", 0.0)
@@ -124,7 +125,7 @@ class WalletWindow(tk.Frame):
 
         ttk.Label(
             contas_frame,
-            text="Contas",
+            text="Contas Débito",
             style="Title.TLabel",
             background=self.color_palette["white"],
         ).pack(anchor="w")
@@ -180,7 +181,7 @@ class WalletWindow(tk.Frame):
 
         ttk.Label(
             cartoes_frame,
-            text="Cartões de crédito",
+            text="Contas Crédito",
             style="Title.TLabel",
             background=self.color_palette["white"],
         ).pack(anchor="w")

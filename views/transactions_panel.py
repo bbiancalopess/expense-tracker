@@ -40,8 +40,11 @@ class TransactionsPanel(tk.Frame):
         ttk.Label(table, text="Categoria", style="TLabel").grid(
             row=0, column=2, sticky="w", padx=5, pady=(0, 5)
         )
+        ttk.Label(table, text="Conta", style="TLabel").grid(
+            row=0, column=3, sticky="w", padx=5, pady=(0, 5)
+        )
         ttk.Label(table, text="Valor", style="TLabel").grid(
-            row=0, column=3, sticky="e", padx=5, pady=(0, 5)
+            row=0, column=4, sticky="e", padx=5, pady=(0, 5)
         )
 
         # Lista de transações
@@ -64,9 +67,13 @@ class TransactionsPanel(tk.Frame):
             ttk.Label(table, text=category, style="TLabel").grid(
                 row=i, column=2, sticky="w", padx=5, pady=2
             )
+            ttk.Label(
+                table, text=transaction.payment_method.name if transaction.payment_method else "", style="TLabel"
+            ).grid(row=i, column=3, sticky="w", padx=5, pady=2)
             ttk.Label(table, text=f"R${transaction.amount}", style="TLabel").grid(
-                row=i, column=3, sticky="e", padx=5, pady=2
+                row=i, column=4, sticky="e", padx=5, pady=2
             )
 
         # Permitir que a coluna de descrição se expanda
         table.grid_columnconfigure(2, weight=1)
+        table.grid_columnconfigure(3, weight=1)
