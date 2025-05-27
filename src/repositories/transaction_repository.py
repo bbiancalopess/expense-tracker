@@ -243,7 +243,6 @@ class TransactionRepository:
             )
 
             results = self.db.select_one(query, params)
-            print(results)
 
             return results["name"] if results.get("name") else ""
 

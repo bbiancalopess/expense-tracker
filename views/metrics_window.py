@@ -12,7 +12,18 @@ class MetricsWindow(tk.Frame):
         self.color_palette = color_palette
         self.selected_view = tk.StringVar(value="categoria")
         self.transaction_service = TransactionService()
+        self.figures = []
         self.create_widgets()
+
+        self.bind("<Destroy>", self.on_destroy)
+
+    def on_destroy(self, event):
+        """Fecha todos os recursos gráficos quando o frame for destruído"""
+
+        for fig in self.figures:
+            plt.close(fig)
+
+        self.figures.clear()
 
     def create_widgets(self):
         # Frame principal
@@ -64,6 +75,8 @@ class MetricsWindow(tk.Frame):
     def update_view(self):
         for widget in self.metrics_frame.winfo_children():
             widget.destroy()
+
+        self.on_destroy(None)
         self.populate_metrics(self.selected_view.get())
 
     def populate_metrics(self, modo):
@@ -132,6 +145,7 @@ class MetricsWindow(tk.Frame):
             fig, ax = plt.subplots(figsize=(4, 4))
             ax.text(0.5, 0.5, "Sem dados disponíveis", ha="center", va="center")
             ax.axis("off")
+            self.figures.append(fig)
             return fig
 
         categories = []
@@ -144,6 +158,7 @@ class MetricsWindow(tk.Frame):
         ax.pie(values, labels=categories, autopct="%1.1f%%", startangle=140)
         ax.axis("equal")
         ax.set_title("Gastos por Categoria")
+        self.figures.append(fig)
         return fig
 
     def criar_grafico_linha(self, monthly_data):
@@ -152,6 +167,7 @@ class MetricsWindow(tk.Frame):
             fig, ax = plt.subplots(figsize=(5, 3))
             ax.text(0.5, 0.5, "Sem dados disponíveis", ha="center", va="center")
             ax.axis("off")
+            self.figures.append(fig)
             return fig
 
         months = [item["month"] for item in monthly_data]
@@ -166,5 +182,5 @@ class MetricsWindow(tk.Frame):
         # Rotacionar labels dos meses para melhor visualização
         plt.xticks(rotation=45)
         plt.tight_layout()
-
+        self.figures.append(fig)
         return fig
