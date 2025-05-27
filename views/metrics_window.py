@@ -1,7 +1,9 @@
+from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import tkinter as tk
 from tkinter import ttk
+from src.services.transaction_service import TransactionService
 
 
 class MetricsWindow(tk.Frame):
@@ -9,6 +11,7 @@ class MetricsWindow(tk.Frame):
         super().__init__(master, bg=color_palette["light_gray"])
         self.color_palette = color_palette
         self.selected_view = tk.StringVar(value="categoria")
+        self.transaction_service = TransactionService()
         self.create_widgets()
 
     def create_widgets(self):
@@ -65,46 +68,93 @@ class MetricsWindow(tk.Frame):
 
     def populate_metrics(self, modo):
         if modo == "categoria":
+            # Obter dados para visualização por categoria
+            expenses_per_category = self.transaction_service.find_expenses_per_category_for_current_month()
+            total_expense = self.transaction_service.find_total_expense_for_current_month()
+            most_used_category = self.transaction_service.find_most_used_category_for_current_month()
+            monthly_transactions = self.transaction_service.count_transactions()
+            
             dados = [
-                ("Total Gasto:", "R$ 1.250,00"),
-                ("Categoria mais frequente:", "Alimentação"),
-                ("Transações no mês:", "18"),
+                ("Total Gasto:", f"R$ {total_expense:.2f}"),
+                ("Categoria mais frequente:", most_used_category),
+                ("Transações no mês:", monthly_transactions),
             ]
-            grafico = self.criar_grafico_pizza()
+            
+            # Criar gráfico de pizza com os dados reais
+            grafico = self.criar_grafico_pizza(expenses_per_category)
+            
         elif modo == "mes":
-            dados = [
-                ("Total em Maio:", "R$ 900,00"),
-                ("Total em Abril:", "R$ 1.050,00"),
-                ("Média mensal:", "R$ 975,00"),
-            ]
-            grafico = self.criar_grafico_linha()
+            # Obter dados para visualização por mês (você precisará implementar isso no service)
+            monthly_data = self.transaction_service.get_monthly_expenses()
+            total_current = monthly_data[-1]["total"] if monthly_data else 0.0
+            total_previous = monthly_data[-2]["total"] if len(monthly_data) > 1 else 0.0
+            average = sum(item["total"] for item in monthly_data) / len(monthly_data) if monthly_data else 0
+            
+            current_month_name = datetime.now().strftime('%B')
+            previous_month_name = (datetime.now().replace(day=1) - timedelta(days=1)).strftime('%B')
 
+            dados = [
+                (f"Total em {current_month_name}:", f"R$ {total_current:.2f}"),
+                (f"Total em {previous_month_name}:", f"R$ {total_previous:.2f}"),
+                ("Média mensal:", f"R$ {average:.2f}"),
+            ]
+            
+            # Criar gráfico de linha com os dados reais
+            grafico = self.criar_grafico_linha(monthly_data)
+
+        # Exibir métricas
         for label, valor in dados:
             row = ttk.Frame(self.metrics_frame)
             row.pack(anchor="w", pady=5)
             ttk.Label(row, text=label, style="TLabel").pack(side="left", padx=(0, 10))
             ttk.Label(row, text=valor, style="TLabel").pack(side="left")
 
+        # Exibir gráfico
         canvas = FigureCanvasTkAgg(grafico, master=self.metrics_frame)
         canvas.draw()
         canvas.get_tk_widget().pack(pady=20)
 
-    def criar_grafico_pizza(self):
-        categorias = ["Alimentação", "Transporte", "Lazer", "Educação"]
-        valores = [500, 300, 200, 250]
+    def criar_grafico_pizza(self, data):
+        if not data:
+            # Retorna um gráfico vazio se não houver dados
+            fig, ax = plt.subplots(figsize=(4, 4))
+            ax.text(0.5, 0.5, 'Sem dados disponíveis',
+                    ha='center', va='center')
+            ax.axis('off')
+            return fig
+
+        categories = []
+        values = []
+        for item in data:
+            categories.append(item["name"])
+            values.append(item["total_expense"])
 
         fig, ax = plt.subplots(figsize=(4, 4))
-        ax.pie(valores, labels=categorias, autopct="%1.1f%%", startangle=140)
+        ax.pie(values, labels=categories, autopct="%1.1f%%", startangle=140)
         ax.axis("equal")
+        ax.set_title("Gastos por Categoria")
         return fig
 
-    def criar_grafico_linha(self):
-        meses = ["Jan", "Fev", "Mar", "Abr", "Mai"]
-        valores = [800, 950, 1100, 1050, 900]
+    def criar_grafico_linha(self, monthly_data):
+        if not monthly_data:
+            # Retorna um gráfico vazio se não houver dados
+            fig, ax = plt.subplots(figsize=(5, 3))
+            ax.text(0.5, 0.5, 'Sem dados disponíveis', 
+                    ha='center', va='center')
+            ax.axis('off')
+            return fig
+        
+        months = [item['month'] for item in monthly_data]
+        values = [item['total'] for item in monthly_data]
 
-        fig, ax = plt.subplots(figsize=(5, 3))
-        ax.plot(meses, valores, marker="o", color="teal")
-        ax.set_title("Gastos por Mês")
-        ax.set_ylabel("Valor (R$)")
+        fig, ax = plt.subplots(figsize=(8, 4))
+        ax.plot(months, values, marker='o', color='teal')
+        ax.set_title('Gastos Mensais')
+        ax.set_ylabel('Valor (R$)')
         ax.grid(True)
+        
+        # Rotacionar labels dos meses para melhor visualização
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        
         return fig
