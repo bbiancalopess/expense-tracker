@@ -200,13 +200,25 @@ class AddTransactionWindow(tk.Toplevel):
         self.desc_entry = ttk.Entry(parent, font=("Segoe UI", 10))
         self.desc_entry.pack(fill="x", pady=(0, 15))
 
+        # Forma de Pagamento
+        # Popula as formas de pagamento
+        payment_methods = self.payment_method_service.get_all_payment_methods()
+        self.payment_methods_data = {pm.name: pm for pm in payment_methods}
+        payment_names = list(self.payment_methods_data.keys())
+
+        ttk.Label(parent, text="Forma de Pagamento *").pack(anchor="w", pady=(0, 5))
+        self.payment_method = ttk.Combobox(
+            parent,
+            values=payment_names,
+            font=("Segoe UI", 10),
+            state="readonly",
+        )
+        self.payment_method.pack(fill="x", pady=(0, 15))
+        self.payment_method.bind("<<ComboboxSelected>>", self.on_payment_method_change)
+
         # Frame para categorias (inicialmente oculto)
         self.categories_frame = tk.Frame(parent, bg=self.colors["white"])
         self.categories_frame.pack_forget()
-
-        # Frame para campos de pagamento (inicialmente oculto)
-        self.payment_frame = tk.Frame(parent, bg=self.colors["white"])
-        self.payment_frame.pack_forget()
 
         # Frame para parcelas (inicialmente oculto)
         self.installments_frame = tk.Frame(parent, bg=self.colors["white"])
@@ -217,44 +229,9 @@ class AddTransactionWindow(tk.Toplevel):
         transaction_type = self.transaction_types.get()
 
         if transaction_type == "Despesa":
-            self.show_payment_fields()
             self.show_categories()
         else:
-            self.hide_payment_fields()
             self.hide_categories()
-
-    def show_payment_fields(self):
-        """Mostra os campos de pagamento"""
-        # Remove os frames se já existirem
-        self.payment_frame.pack_forget()
-        self.installments_frame.pack_forget()
-
-        # Recria o frame de pagamento
-        self.payment_frame = tk.Frame(self.main_form_frame, bg=self.colors["white"])
-        self.payment_frame.pack(fill="x", pady=(0, 15))
-
-        payment_methods = self.payment_method_service.get_all_payment_methods()
-        self.payment_methods_data = {pm.name: pm for pm in payment_methods}
-
-        payment_names = list(self.payment_methods_data.keys())
-
-        # Forma de Pagamento
-        ttk.Label(self.payment_frame, text="Forma de Pagamento *").pack(
-            anchor="w", pady=(0, 5)
-        )
-        self.payment_method = ttk.Combobox(
-            self.payment_frame,
-            values=payment_names,
-            font=("Segoe UI", 10),
-            state="readonly",
-        )
-        self.payment_method.pack(fill="x", pady=(0, 15))
-        self.payment_method.bind("<<ComboboxSelected>>", self.on_payment_method_change)
-
-    def hide_payment_fields(self):
-        """Esconde os campos de pagamento"""
-        self.payment_frame.pack_forget()
-        self.installments_frame.pack_forget()
 
     def show_categories(self):
         """Mostra o campo de categorias com opção de exclusão"""
@@ -419,7 +396,10 @@ class AddTransactionWindow(tk.Toplevel):
         selected_name = self.payment_method.get()
         if selected_name in self.payment_methods_data:
             selected_method = self.payment_methods_data[selected_name]
-            if selected_method.payment_type == PaymentType.CREDIT:
+            if (
+                selected_method.payment_type == PaymentType.CREDIT
+                and self.transaction_types.get() == "Despesa"
+            ):
                 self.show_installments_field()
             else:
                 self.hide_installments_field()
@@ -482,6 +462,9 @@ class AddTransactionWindow(tk.Toplevel):
             except ValueError:
                 errors.append("Valor inválido (use números com . ou , para decimais)")
 
+        if not payment_method:
+            errors.append("Selecione uma forma de pagamento")
+
         if not date:
             errors.append("Selecione uma data")
         if not transaction_type:
@@ -490,8 +473,6 @@ class AddTransactionWindow(tk.Toplevel):
         if transaction_type == "Despesa":
             if not category:
                 errors.append("Selecione uma categoria")
-            if not payment_method:
-                errors.append("Selecione uma forma de pagamento")
             if payment_method == "Crédito":
                 try:
                     installment = int(installment) if installment else 0
