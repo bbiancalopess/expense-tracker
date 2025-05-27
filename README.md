@@ -19,7 +19,7 @@ Um sistema de gerenciamento financeiro pessoal, desenvolvido com princípios de 
 ## Tecnologias Utilizadas
 - Linguagem: Python 3.11
 - Banco de Dados: SQLite
-- Bibliotecas:
+- Bibliotecas principais:
   - Tkinter (Interface Gráfica)
   - matplotlib (Geração de gráficos)
   - sqlite3 (Persistência de dados)
@@ -33,16 +33,16 @@ git clone https://github.com/bbiancalopess/expense-tracker
 cd expense-tracker
 
 # Execute o programa
-python main.py
+python3 main.py
 ```
 
 ## Funcionalidades
-- [ ] Cadastro de receitas e despesas
+- [ ] Cadastro de transações ( Receitas ou Despesas )
 - [ ] Parcelamento automático de despesas
 - [ ] Atualização automática de saldo
 - [ ] Visualização de saldo geral e por forma de pagamento
 - [ ] Relatório financeiro por categoria e mês
 - [ ] Geração de gráficos financeiros
-- [ ] Interface gráfica amigável (Tkinter)
+- [ ] Cadastro de contas como forma de pagamento
 
  
