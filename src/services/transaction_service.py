@@ -191,7 +191,7 @@ class TransactionService:
     def count_transactions(self) -> int:
         """
         Retorna o número total de transações no mês atual
-        
+
         Returns:
             int: Número de transações
         """
@@ -205,7 +205,7 @@ class TransactionService:
     def find_expenses_per_category_for_current_month(self) -> list[dict]:
         """
         Retorna as despesas agrupadas por categoria no mês atual
-        
+
         Returns:
             List[dict]: Lista com {'name': str, 'total_expense': float}
         """
@@ -238,4 +238,4 @@ class TransactionService:
             return self.repo.get_category_stats()
         except Exception as e:
             print(f"Error getting category stats: {e}")
-            return {'most_used': '', 'categories': []}
+            return {"most_used": "", "categories": []}

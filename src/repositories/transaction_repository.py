@@ -249,7 +249,7 @@ class TransactionRepository:
 
         except Exception as e:
             raise Exception(f"Error getting current month transaction totals: {e}")
-    
+
     def count_month_transactions(self) -> int:
         try:
             current_month = datetime.now().month
@@ -271,7 +271,7 @@ class TransactionRepository:
 
         except Exception as e:
             raise Exception(f"Error getting current month transaction totals: {e}")
-    
+
     def get_expenses_per_category_for_current_month(self) -> list[dict]:
         try:
             current_month = datetime.now().month
@@ -295,11 +295,14 @@ class TransactionRepository:
             )
 
             results = self.db.select(query, params)
-            return [{'name': row['name'], 'total_expense': row['total_expense']} for row in results]
+            return [
+                {"name": row["name"], "total_expense": row["total_expense"]}
+                for row in results
+            ]
 
         except Exception as e:
             raise Exception(f"Error getting expenses per category: {e}")
-    
+
     def get_monthly_expenses(self) -> list[dict]:
         try:
             query = """
@@ -313,7 +316,7 @@ class TransactionRepository:
                 ORDER BY date ASC;
             """
             results = self.db.select(query, (TransactionType.EXPENSE,))
-            return [{'month': row['month'], 'total': row['total']} for row in results]
+            return [{"month": row["month"], "total": row["total"]} for row in results]
         except Exception as e:
             raise Exception(f"Error getting monthly expenses: {e}")
 
@@ -330,7 +333,7 @@ class TransactionRepository:
                 LIMIT 1;
             """
             most_used = self.db.select_one(query_most_used, (TransactionType.EXPENSE,))
-            
+
             # Todas as categorias com contagem
             query_all = """
                 SELECT c.name, COUNT(t.id) as count
@@ -340,10 +343,13 @@ class TransactionRepository:
                 GROUP BY t.category_id;
             """
             all_categories = self.db.select(query_all, (TransactionType.EXPENSE,))
-            
+
             return {
-                'most_used': most_used['name'] if most_used else '',
-                'categories': [{'name': row['name'], 'count': row['count']} for row in all_categories]
+                "most_used": most_used["name"] if most_used else "",
+                "categories": [
+                    {"name": row["name"], "count": row["count"]}
+                    for row in all_categories
+                ],
             }
         except Exception as e:
             raise Exception(f"Error getting category stats: {e}")

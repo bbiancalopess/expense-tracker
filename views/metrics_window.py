@@ -69,36 +69,48 @@ class MetricsWindow(tk.Frame):
     def populate_metrics(self, modo):
         if modo == "categoria":
             # Obter dados para visualização por categoria
-            expenses_per_category = self.transaction_service.find_expenses_per_category_for_current_month()
-            total_expense = self.transaction_service.find_total_expense_for_current_month()
-            most_used_category = self.transaction_service.find_most_used_category_for_current_month()
+            expenses_per_category = (
+                self.transaction_service.find_expenses_per_category_for_current_month()
+            )
+            total_expense = (
+                self.transaction_service.find_total_expense_for_current_month()
+            )
+            most_used_category = (
+                self.transaction_service.find_most_used_category_for_current_month()
+            )
             monthly_transactions = self.transaction_service.count_transactions()
-            
+
             dados = [
                 ("Total Gasto:", f"R$ {total_expense:.2f}"),
                 ("Categoria mais frequente:", most_used_category),
                 ("Transações no mês:", monthly_transactions),
             ]
-            
+
             # Criar gráfico de pizza com os dados reais
             grafico = self.criar_grafico_pizza(expenses_per_category)
-            
+
         elif modo == "mes":
             # Obter dados para visualização por mês (você precisará implementar isso no service)
             monthly_data = self.transaction_service.get_monthly_expenses()
             total_current = monthly_data[-1]["total"] if monthly_data else 0.0
             total_previous = monthly_data[-2]["total"] if len(monthly_data) > 1 else 0.0
-            average = sum(item["total"] for item in monthly_data) / len(monthly_data) if monthly_data else 0
-            
-            current_month_name = datetime.now().strftime('%B')
-            previous_month_name = (datetime.now().replace(day=1) - timedelta(days=1)).strftime('%B')
+            average = (
+                sum(item["total"] for item in monthly_data) / len(monthly_data)
+                if monthly_data
+                else 0
+            )
+
+            current_month_name = datetime.now().strftime("%B")
+            previous_month_name = (
+                datetime.now().replace(day=1) - timedelta(days=1)
+            ).strftime("%B")
 
             dados = [
                 (f"Total em {current_month_name}:", f"R$ {total_current:.2f}"),
                 (f"Total em {previous_month_name}:", f"R$ {total_previous:.2f}"),
                 ("Média mensal:", f"R$ {average:.2f}"),
             ]
-            
+
             # Criar gráfico de linha com os dados reais
             grafico = self.criar_grafico_linha(monthly_data)
 
@@ -118,9 +130,8 @@ class MetricsWindow(tk.Frame):
         if not data:
             # Retorna um gráfico vazio se não houver dados
             fig, ax = plt.subplots(figsize=(4, 4))
-            ax.text(0.5, 0.5, 'Sem dados disponíveis',
-                    ha='center', va='center')
-            ax.axis('off')
+            ax.text(0.5, 0.5, "Sem dados disponíveis", ha="center", va="center")
+            ax.axis("off")
             return fig
 
         categories = []
@@ -139,22 +150,21 @@ class MetricsWindow(tk.Frame):
         if not monthly_data:
             # Retorna um gráfico vazio se não houver dados
             fig, ax = plt.subplots(figsize=(5, 3))
-            ax.text(0.5, 0.5, 'Sem dados disponíveis', 
-                    ha='center', va='center')
-            ax.axis('off')
+            ax.text(0.5, 0.5, "Sem dados disponíveis", ha="center", va="center")
+            ax.axis("off")
             return fig
-        
-        months = [item['month'] for item in monthly_data]
-        values = [item['total'] for item in monthly_data]
+
+        months = [item["month"] for item in monthly_data]
+        values = [item["total"] for item in monthly_data]
 
         fig, ax = plt.subplots(figsize=(8, 4))
-        ax.plot(months, values, marker='o', color='teal')
-        ax.set_title('Gastos Mensais')
-        ax.set_ylabel('Valor (R$)')
+        ax.plot(months, values, marker="o", color="teal")
+        ax.set_title("Gastos Mensais")
+        ax.set_ylabel("Valor (R$)")
         ax.grid(True)
-        
+
         # Rotacionar labels dos meses para melhor visualização
         plt.xticks(rotation=45)
         plt.tight_layout()
-        
+
         return fig
