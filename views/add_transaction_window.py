@@ -239,7 +239,7 @@ class AddTransactionWindow(tk.Toplevel):
         payment_names = list(self.payment_methods_data.keys())
 
         # Forma de Pagamento
-        ttk.Label(self.payment_frame, text="Forma de Pagamento *").pack(
+        ttk.Label(self.payment_frame, text="Conta *").pack(
             anchor="w", pady=(0, 5)
         )
         self.payment_method = ttk.Combobox(
