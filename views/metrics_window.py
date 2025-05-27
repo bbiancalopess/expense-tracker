@@ -1,9 +1,11 @@
+import locale
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import tkinter as tk
 from tkinter import ttk
 from src.services.transaction_service import TransactionService
+from utils import date
 
 
 class MetricsWindow(tk.Frame):
@@ -113,10 +115,13 @@ class MetricsWindow(tk.Frame):
                 else 0
             )
 
-            current_month_name = datetime.now().strftime("%B")
-            previous_month_name = (
+            current_month_en = datetime.now().strftime("%B").capitalize()
+            previous_month_en = (
                 datetime.now().replace(day=1) - timedelta(days=1)
-            ).strftime("%B")
+            ).strftime("%B").capitalize()
+
+            current_month_name = date.month_translation[current_month_en]
+            previous_month_name = date.month_translation[previous_month_en]
 
             dados = [
                 (f"Total em {current_month_name}:", f"R$ {total_current:.2f}"),
@@ -142,7 +147,7 @@ class MetricsWindow(tk.Frame):
     def criar_grafico_pizza(self, data):
         if not data:
             # Retorna um gráfico vazio se não houver dados
-            fig, ax = plt.subplots(figsize=(4, 4))
+            fig, ax = plt.subplots(figsize=(8, 8))
             ax.text(0.5, 0.5, "Sem dados disponíveis", ha="center", va="center")
             ax.axis("off")
             self.figures.append(fig)
@@ -154,10 +159,9 @@ class MetricsWindow(tk.Frame):
             categories.append(item["name"])
             values.append(item["total_expense"])
 
-        fig, ax = plt.subplots(figsize=(4, 4))
+        fig, ax = plt.subplots(figsize=(10, 8))
         ax.pie(values, labels=categories, autopct="%1.1f%%", startangle=140)
         ax.axis("equal")
-        ax.set_title("Gastos por Categoria")
         self.figures.append(fig)
         return fig
 

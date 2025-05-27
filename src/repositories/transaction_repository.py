@@ -226,15 +226,15 @@ class TransactionRepository:
 
             query = """
                 SELECT
-                    COUNT(t.id) as category_amount,
-                    c.name
+                    c.name,
+                    SUM(t.amount) as total_spent
                 FROM transactions t
                 JOIN categories c ON c.id = t.category_id
                 WHERE type = ?
                 AND strftime('%m', date) = ?
                 AND strftime('%Y', date) = ?
                 GROUP BY t.category_id
-                ORDER BY category_amount
+                ORDER BY total_spent DESC
                 LIMIT 1;
             """
             params = (
