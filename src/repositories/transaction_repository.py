@@ -52,6 +52,7 @@ class TransactionRepository:
                     date=(
                         datetime.fromisoformat(data["date"]) if "date" in data else None
                     ),
+                    payment_method=payment_method,
                 )
             elif data["type"] == TransactionType.EXPENSE:
                 return Expense(

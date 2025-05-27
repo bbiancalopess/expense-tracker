@@ -493,6 +493,7 @@ class AddTransactionWindow(tk.Toplevel):
             "date": date.strftime("%Y-%m-%d"),
             "amount": value,
             "description": description,
+            "payment_method": payment_method,
         }
 
         try:
@@ -504,7 +505,6 @@ class AddTransactionWindow(tk.Toplevel):
                         "category": category,
                         "total_installments": int(installment) if installment else 1,
                         "current_installment": 1,
-                        "payment_method": payment_method,
                     }
                 )
                 transaction = Expense.from_dict(transaction_data)

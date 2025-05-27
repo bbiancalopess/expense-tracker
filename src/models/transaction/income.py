@@ -26,10 +26,15 @@ class Income(Transaction):
     @classmethod
     def from_dict(cls, data: dict[str, any]) -> "Income":
         """Cria Income a partir de dicionário"""
+        payment_method = data.get("payment_method")
+
+        if not payment_method and "payment_method_id" in data:
+            payment_method = PaymentMethod(id=data["payment_method_id"])
+
         return cls(
             id=data.get("id"),
             amount=data["amount"],
             description=data.get("description", ""),
             date=datetime.fromisoformat(data["date"]) if "date" in data else None,
-            payment_method=data.get("payment_method"),
+            payment_method=payment_method,
         )
