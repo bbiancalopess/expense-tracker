@@ -21,15 +21,6 @@ class TransactionRepository:
         self.category_service = CategoryService()
 
     def __create_transaction_from_dict(self, data: dict) -> Optional[Transaction]:
-        """
-        Factory method interno para criar instâncias específicas de Transaction.
-
-        Args:
-            data: Dicionário com os dados do banco
-
-        Returns:
-            Instância de Income, Expense ou None se inválido
-        """
         if not data or "type" not in data:
             return None
 
@@ -72,12 +63,6 @@ class TransactionRepository:
             raise Exception(f"Error creating transaction from dict: {e}")
 
     def get_all(self) -> list[Transaction]:
-        """
-        Recupera todas as transações do banco.
-
-        Returns:
-            Lista de Transaction (Income ou Expense) ou lista vazia
-        """
         try:
             query = """
                 SELECT id, amount, description, date,
@@ -96,15 +81,6 @@ class TransactionRepository:
             raise Exception(f"Error getting all transactions: {e}")
 
     def get_by_id(self, transaction_id: int) -> Optional[Transaction]:
-        """
-        Busca uma transação pelo ID.
-
-        Args:
-            transaction_id: ID da transação
-
-        Returns:
-            Instância de Transaction ou None se não encontrada
-        """
         try:
             query = """
                 SELECT id, amount, description, date,
@@ -119,18 +95,6 @@ class TransactionRepository:
             raise Exception(f"Error getting transaction by ID {transaction_id}: {e}")
 
     def save(self, transaction: Transaction) -> int:
-        """
-        Salva uma transação no banco (insere ou atualiza).
-
-        Args:
-            transaction: Instância de Income ou Expense
-
-        Returns:
-            ID da transação salva ou None em caso de falha
-
-        Raises:
-            ValueError: Se o objeto transaction for inválido
-        """
         if not isinstance(transaction, Transaction):
             raise ValueError("Invalid transaction object")
 
@@ -187,15 +151,6 @@ class TransactionRepository:
             raise Exception(f"Error saving transaction: {e}")
 
     def delete(self, transaction_id: int) -> bool:
-        """
-        Remove uma transação do banco.
-
-        Args:
-            transaction_id: ID da transação a ser removida
-
-        Returns:
-            True se removida com sucesso, False caso contrário
-        """
         try:
             query = "DELETE FROM transactions WHERE id = ?;"
             return self.db.delete(query, (transaction_id,)) > 0
@@ -203,22 +158,12 @@ class TransactionRepository:
             raise Exception(f"Error deleting transaction {transaction_id}: {e}")
 
     def get_current_month_totals_by_payment_method(self) -> dict[int, dict[str, float]]:
-        """
-        Retorna os totais de incomes e expenses do mês atual agrupados por payment_method.
-
-        Returns:
-            Dict[int, Dict[str, float]]:
-            - Chave: payment_method_id
-            - Valor: Dicionário com:
-                - 'income': soma total de incomes do mês
-                - 'expense': soma total de expenses do mês
-        """
         try:
             current_month = datetime.now().month
             current_year = datetime.now().year
 
             query = """
-                SELECT 
+                SELECT
                     payment_method_id,
                     SUM(CASE WHEN type = ? THEN amount ELSE 0 END) as income_total,
                     SUM(CASE WHEN type = ? THEN amount ELSE 0 END) as expense_total
@@ -247,3 +192,164 @@ class TransactionRepository:
 
         except Exception as e:
             raise Exception(f"Error getting current month transaction totals: {e}")
+
+    def get_total_expenses_for_current_month(self) -> float:
+        try:
+            current_month = datetime.now().month
+            current_year = datetime.now().year
+
+            query = """
+                SELECT
+                    SUM(amount) as total
+                FROM transactions
+                WHERE type = ?
+                AND strftime('%m', date) = ?
+                AND strftime('%Y', date) = ?;
+            """
+            params = (
+                TransactionType.EXPENSE,
+                f"{current_month:02d}",
+                str(current_year),
+            )
+
+            results = self.db.select_one(query, params)
+
+            return results["total"] if results.get("total") else 0.0
+
+        except Exception as e:
+            raise Exception(f"Error getting current month transaction totals: {e}")
+
+    def get_most_added_category_for_current_month(self) -> str:
+        try:
+            current_month = datetime.now().month
+            current_year = datetime.now().year
+
+            query = """
+                SELECT
+                    COUNT(t.id) as category_amount,
+                    c.name
+                FROM transactions t
+                JOIN categories c ON c.id = t.category_id
+                WHERE type = ?
+                AND strftime('%m', date) = ?
+                AND strftime('%Y', date) = ?
+                GROUP BY t.category_id
+                ORDER BY category_amount
+                LIMIT 1;
+            """
+            params = (
+                TransactionType.EXPENSE,
+                f"{current_month:02d}",
+                str(current_year),
+            )
+
+            results = self.db.select_one(query, params)
+
+            return results["name"] if results.get("name") else ""
+
+        except Exception as e:
+            raise Exception(f"Error getting current month transaction totals: {e}")
+
+    def count_month_transactions(self) -> int:
+        try:
+            current_month = datetime.now().month
+            current_year = datetime.now().year
+
+            query = """
+                SELECT COUNT(id) as total_transactions
+                FROM transactions
+                WHERE strftime('%m', date) = ?
+                AND strftime('%Y', date) = ?;
+            """
+            params = (
+                f"{current_month:02d}",
+                str(current_year),
+            )
+
+            result = self.db.select_one(query, params)
+            return result["total_transactions"] if result else 0
+
+        except Exception as e:
+            raise Exception(f"Error getting current month transaction totals: {e}")
+
+    def get_expenses_per_category_for_current_month(self) -> list[dict]:
+        try:
+            current_month = datetime.now().month
+            current_year = datetime.now().year
+
+            query = """
+                SELECT
+                    SUM(t.amount) as total_expense,
+                    c.name
+                FROM transactions t
+                JOIN categories c ON c.id = t.category_id
+                WHERE t.type = ?
+                AND strftime('%m', t.date) = ?
+                AND strftime('%Y', t.date) = ?
+                GROUP BY t.category_id;
+            """
+            params = (
+                TransactionType.EXPENSE,
+                f"{current_month:02d}",
+                str(current_year),
+            )
+
+            results = self.db.select(query, params)
+            return [
+                {"name": row["name"], "total_expense": row["total_expense"]}
+                for row in results
+            ]
+
+        except Exception as e:
+            raise Exception(f"Error getting expenses per category: {e}")
+
+    def get_monthly_expenses(self) -> list[dict]:
+        try:
+            query = """
+                SELECT 
+                    strftime('%m/%Y', date) as month,
+                    SUM(amount) as total
+                FROM transactions
+                WHERE type = ?
+                    AND date >= date('now', '-12 months')
+                GROUP BY strftime('%Y-%m', date)
+                ORDER BY date ASC;
+            """
+            results = self.db.select(query, (TransactionType.EXPENSE,))
+            return [{"month": row["month"], "total": row["total"]} for row in results]
+        except Exception as e:
+            raise Exception(f"Error getting monthly expenses: {e}")
+
+    def get_category_stats(self) -> dict:
+        try:
+            # Categoria mais usada
+            query_most_used = """
+                SELECT c.name, COUNT(t.id) as count
+                FROM transactions t
+                JOIN categories c ON t.category_id = c.id
+                WHERE t.type = ?
+                GROUP BY t.category_id
+                ORDER BY count DESC
+                LIMIT 1;
+            """
+            most_used = self.db.select_one(query_most_used, (TransactionType.EXPENSE,))
+
+            # Todas as categorias com contagem
+            query_all = """
+                SELECT c.name, COUNT(t.id) as count
+                FROM transactions t
+                JOIN categories c ON t.category_id = c.id
+                WHERE t.type = ?
+                GROUP BY t.category_id;
+            """
+            all_categories = self.db.select(query_all, (TransactionType.EXPENSE,))
+
+            return {
+                "most_used": most_used["name"] if most_used else "",
+                "categories": [
+                    {"name": row["name"], "count": row["count"]}
+                    for row in all_categories
+                ],
+            }
+        except Exception as e:
+            raise Exception(f"Error getting category stats: {e}")

@@ -151,3 +151,91 @@ class TransactionService:
             error_msg = f"Error getting current month totals by payment method: {e}"
             print(error_msg)
             raise Exception(error_msg) from e
+
+    def find_total_expense_for_current_month(
+        self,
+    ) -> float:
+        """
+        Retorna o total gasto no mês.
+
+        Returns:
+            float
+        Raises:
+            Exception: Se ocorrer um erro ao acessar o repositório
+        """
+        try:
+            return self.repo.get_total_expenses_for_current_month()
+        except Exception as e:
+            error_msg = f"Error getting total expenses for current month: {e}"
+            print(error_msg)
+            raise Exception(error_msg) from e
+
+    def find_most_used_category_for_current_month(
+        self,
+    ) -> str:
+        """
+        Retorna a cateogria mais usada no mês.
+
+        Returns:
+            str
+        Raises:
+            Exception: Se ocorrer um erro ao acessar o repositório
+        """
+        try:
+            return self.repo.get_most_added_category_for_current_month()
+        except Exception as e:
+            error_msg = f"Error getting most used category for current month: {e}"
+            print(error_msg)
+            raise Exception(error_msg) from e
+
+    def count_transactions(self) -> int:
+        """
+        Retorna o número total de transações no mês atual
+
+        Returns:
+            int: Número de transações
+        """
+        try:
+            return self.repo.count_month_transactions()
+        except Exception as e:
+            error_msg = f"Error counting transactions: {e}"
+            print(error_msg)
+            raise Exception(error_msg) from e
+
+    def find_expenses_per_category_for_current_month(self) -> list[dict]:
+        """
+        Retorna as despesas agrupadas por categoria no mês atual
+
+        Returns:
+            List[dict]: Lista com {'name': str, 'total_expense': float}
+        """
+        try:
+            return self.repo.get_expenses_per_category_for_current_month()
+        except Exception as e:
+            error_msg = f"Error getting expenses per category: {e}"
+            print(error_msg)
+            raise Exception(error_msg) from e
+
+    def get_monthly_expenses(self) -> list[dict]:
+        """
+        Retorna os gastos mensais para os últimos 12 meses
+        Returns:
+            List[dict]: Lista com {'month': 'MM/YYYY', 'total': float}
+        """
+        try:
+            return self.repo.get_monthly_expenses()
+        except Exception as e:
+            print(f"Error getting monthly expenses: {e}")
+            return []
+
+    def get_category_stats(self) -> dict:
+        """
+        Retorna estatísticas por categoria
+        Returns:
+            dict: {'most_used': str, 'categories': list}
+        """
+        try:
+            return self.repo.get_category_stats()
+        except Exception as e:
+            print(f"Error getting category stats: {e}")
+            return {"most_used": "", "categories": []}
