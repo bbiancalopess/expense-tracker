@@ -117,8 +117,10 @@ class MetricsWindow(tk.Frame):
 
             current_month_en = datetime.now().strftime("%B").capitalize()
             previous_month_en = (
-                datetime.now().replace(day=1) - timedelta(days=1)
-            ).strftime("%B").capitalize()
+                (datetime.now().replace(day=1) - timedelta(days=1))
+                .strftime("%B")
+                .capitalize()
+            )
 
             current_month_name = date.month_translation[current_month_en]
             previous_month_name = date.month_translation[previous_month_en]

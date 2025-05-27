@@ -10,5 +10,5 @@ month_translation = {
     "September": "Setembro",
     "October": "Outubro",
     "November": "Novembro",
-    "December": "Dezembro"
+    "December": "Dezembro",
 }

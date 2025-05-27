@@ -12,8 +12,9 @@ from src.models.payment_method.payment_type import PaymentType
 
 
 class AddTransactionWindow(tk.Toplevel):
-    def __init__(self, master=None):
+    def __init__(self, master=None, on_save_callback=None):
         super().__init__(master)
+        self.on_save_callback = on_save_callback
         self.title("Adicionar Transação")
         self.geometry("650x700")
         self.minsize(500, 600)
@@ -516,6 +517,9 @@ class AddTransactionWindow(tk.Toplevel):
                 raise Exception("Falha ao salvar transação")
 
             tk.messagebox.showinfo("Sucesso", f"Transação adicionada com sucesso!")
+            if self.on_save_callback:
+                self.on_save_callback()
+
             self.destroy()
         except Exception as e:
             tk.messagebox.showerror("Erro", f"Falha ao salvar transação: {str(e)}")

@@ -10,16 +10,24 @@ class TransactionsPanel(tk.Frame):
         super().__init__(parent, bg=color_palette["light_gray"])
         self.color_palette = color_palette
         self.transaction_service = TransactionService()
+        self.inner_frame = None
+
         self.create_widgets()
 
     def create_widgets(self):
-        # Frame interno com borda
-        inner_frame = tk.Frame(self, bg=self.color_palette["white"], padx=20, pady=20)
-        inner_frame.pack(expand=True, fill="both")
+        # Limpa o frame interno se já existir
+        if self.inner_frame:
+            self.inner_frame.destroy()
+
+        # Cria um novo frame interno
+        self.inner_frame = tk.Frame(
+            self, bg=self.color_palette["white"], padx=20, pady=20
+        )
+        self.inner_frame.pack(expand=True, fill="both")
 
         # Título
         title = ttk.Label(
-            inner_frame,
+            self.inner_frame,
             text="Últimas transações",
             style="Title.TLabel",
             background=self.color_palette["white"],
@@ -27,7 +35,7 @@ class TransactionsPanel(tk.Frame):
         title.pack(pady=(0, 20), anchor="w")
 
         # Tabela com headers e valores
-        table = tk.Frame(inner_frame, bg=self.color_palette["white"])
+        table = tk.Frame(self.inner_frame, bg=self.color_palette["white"])
         table.pack(fill="x")
 
         # Cabeçalhos
@@ -82,3 +90,7 @@ class TransactionsPanel(tk.Frame):
         # Permitir que a coluna de descrição se expanda
         table.grid_columnconfigure(2, weight=1)
         table.grid_columnconfigure(3, weight=1)
+
+    def refresh_transactions(self):
+        """Atualiza a lista de transações"""
+        self.create_widgets()
