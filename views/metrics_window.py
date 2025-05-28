@@ -112,15 +112,35 @@ class MetricsWindow(tk.Frame):
                 if monthly_data
                 else 0
             )
+            month_translation = {
+                "January": "Janeiro",
+                "February": "Fevereiro",
+                "March": "Março",
+                "April": "Abril",
+                "May": "Maio",
+                "June": "Junho",
+                "July": "Julho",
+                "August": "Agosto",
+                "September": "Setembro",
+                "October": "Outubro",
+                "November": "Novembro",
+                "December": "Dezembro",
+            }
 
             current_month_name = datetime.now().strftime("%B")
+            current_month_pt = month_translation.get(
+                current_month_name, current_month_name
+            )
             previous_month_name = (
                 datetime.now().replace(day=1) - timedelta(days=1)
             ).strftime("%B")
+            previous_month_pt = month_translation.get(
+                previous_month_name, previous_month_name
+            )
 
             dados = [
-                (f"Total em {current_month_name}:", f"R$ {total_current:.2f}"),
-                (f"Total em {previous_month_name}:", f"R$ {total_previous:.2f}"),
+                (f"Total em {current_month_pt}:", f"R$ {total_current:.2f}"),
+                (f"Total em {previous_month_pt}:", f"R$ {total_previous:.2f}"),
                 ("Média mensal:", f"R$ {average:.2f}"),
             ]
 
