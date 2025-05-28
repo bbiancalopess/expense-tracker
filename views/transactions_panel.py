@@ -23,7 +23,9 @@ class TransactionsPanel(tk.Frame):
         self.canvas = tk.Canvas(
             main_frame, bg=self.color_palette["white"], highlightthickness=0
         )
-        scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=self.canvas.yview)
+        scrollbar = ttk.Scrollbar(
+            main_frame, orient="vertical", command=self.canvas.yview
+        )
 
         self.canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
@@ -37,7 +39,8 @@ class TransactionsPanel(tk.Frame):
         )
 
         self.canvas.bind(
-            "<Configure>", lambda e: self.canvas.itemconfig("inner_frame", width=e.width)
+            "<Configure>",
+            lambda e: self.canvas.itemconfig("inner_frame", width=e.width),
         )
 
         def on_frame_configure(event):
@@ -134,7 +137,9 @@ class TransactionsPanel(tk.Frame):
         transactions = self.transaction_service.get_all_transactions()
         for i, transaction in enumerate(transactions, start=1):
             category = (
-                transaction.category.name if isinstance(transaction, Expense) and transaction.category else ""
+                transaction.category.name
+                if isinstance(transaction, Expense) and transaction.category
+                else ""
             )
             transaction_type = TransactionType.get_visual_label(
                 transaction_type=transaction.transaction_type
