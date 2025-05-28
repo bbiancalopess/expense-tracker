@@ -10,7 +10,6 @@ Um sistema de gerenciamento financeiro pessoal, desenvolvido com princípios de 
   - **Despesa**: Representa saídas de dinheiro (possui controle de parcelamento).
 - **Carteira**: Agrupa formas de pagamento e calcula o saldo total.
 - **FormaDePagamento** (classe abstrata): Representa um método de pagamento.
-  - **Dinheiro**: Gerencia saldo em espécie.
   - **Débito**: Gerencia saldo bancário.
   - **Crédito**: Gerencia limite de crédito, dia de fechamento e vencimento de fatura.
 - **Gráfico**: Gera visualizações financeiras por mês e por categoria.
