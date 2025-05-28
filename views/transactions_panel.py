@@ -11,6 +11,8 @@ class TransactionsPanel(tk.Frame):
         super().__init__(parent, bg=color_palette["light_gray"])
         self.color_palette = color_palette
         self.transaction_service = TransactionService()
+        self.canvas = None
+        self.inner_frame = None
 
         self.create_widgets()
 
@@ -18,52 +20,59 @@ class TransactionsPanel(tk.Frame):
         main_frame = tk.Frame(self, bg=self.color_palette["light_gray"])
         main_frame.pack(fill="both", expand=True)
 
-        canvas = tk.Canvas(
+        self.canvas = tk.Canvas(
             main_frame, bg=self.color_palette["white"], highlightthickness=0
         )
-        scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=canvas.yview)
+        scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=self.canvas.yview)
 
-        canvas.pack(side="left", fill="both", expand=True)
+        self.canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
-        canvas.configure(yscrollcommand=scrollbar.set)
+        self.canvas.configure(yscrollcommand=scrollbar.set)
 
-        inner_frame = tk.Frame(canvas, bg=self.color_palette["white"])
+        self.inner_frame = tk.Frame(self.canvas, bg=self.color_palette["white"])
 
-        canvas.create_window(
-            (0, 0), window=inner_frame, anchor="nw", tags="inner_frame"
+        self.canvas.create_window(
+            (0, 0), window=self.inner_frame, anchor="nw", tags="inner_frame"
         )
 
-        canvas.bind(
-            "<Configure>", lambda e: canvas.itemconfig("inner_frame", width=e.width)
+        self.canvas.bind(
+            "<Configure>", lambda e: self.canvas.itemconfig("inner_frame", width=e.width)
         )
 
         def on_frame_configure(event):
-            canvas.configure(scrollregion=canvas.bbox("all"))
-            canvas.itemconfig("inner_frame", width=event.width)
+            self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+            self.canvas.itemconfig("inner_frame", width=event.width)
 
-        inner_frame.bind("<Configure>", on_frame_configure)
+        self.inner_frame.bind("<Configure>", on_frame_configure)
 
         def on_canvas_configure(event):
-            canvas.itemconfig("inner_frame", width=event.width)
+            self.canvas.itemconfig("inner_frame", width=event.width)
 
-        canvas.bind("<Configure>", on_canvas_configure)
+        self.canvas.bind("<Configure>", on_canvas_configure)
 
-        header_frame = tk.Frame(
-            inner_frame, bg=self.color_palette["white"], padx=20, pady=20
+        # Cria o cabeçalho
+        self.create_header()
+        # Cria a lista de transações
+        self.create_transaction_list()
+
+    def create_header(self):
+        """Cria o cabeçalho do painel de transações"""
+        self.header_frame = tk.Frame(
+            self.inner_frame, bg=self.color_palette["white"], padx=20, pady=20
         )
-        header_frame.pack(fill="x", pady=(0, 20))
+        self.header_frame.pack(fill="x", pady=(0, 20))
 
         # Título
         title = ttk.Label(
-            header_frame,
+            self.header_frame,
             text="Transações",
             style="Title.TLabel",
             background=self.color_palette["white"],
         )
         title.pack(side="left", anchor="w")
 
-        dates_frame = tk.Frame(header_frame, bg=self.color_palette["white"])
+        dates_frame = tk.Frame(self.header_frame, bg=self.color_palette["white"])
         dates_frame.pack(side="right", anchor="e")
 
         # Campo "De"
@@ -94,15 +103,17 @@ class TransactionsPanel(tk.Frame):
         )
         self.date_entry_until.pack(side="left")
 
+    def create_transaction_list(self):
+        """Cria a lista de transações"""
         # Tabela com headers e valores
-        table = tk.Frame(inner_frame, bg=self.color_palette["white"])
+        table = tk.Frame(self.inner_frame, bg=self.color_palette["white"])
         table.pack(fill="both", expand=True)
 
         # Configurar colunas para expandirem
         for col in range(5):
             table.grid_columnconfigure(col, weight=1)
 
-        # Cabeçalhos
+        # Cabeçalhos da tabela
         ttk.Label(table, text="Tipo de transação", style="TLabel").grid(
             row=0, column=0, sticky="w", padx=5, pady=(0, 5)
         )
@@ -151,5 +162,15 @@ class TransactionsPanel(tk.Frame):
                 row=i, column=4, sticky="e", padx=5, pady=2
             )
 
-        inner_frame.update_idletasks()
-        canvas.configure(scrollregion=canvas.bbox("all"))
+        self.inner_frame.update_idletasks()
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def refresh_transactions(self):
+        """Atualiza a lista de transações"""
+        # Encontra e destrói o frame da tabela (mantendo o cabeçalho)
+        for widget in self.inner_frame.winfo_children():
+            if widget != self.header_frame:
+                widget.destroy()
+
+        # Recria a lista de transações
+        self.create_transaction_list()
