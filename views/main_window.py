@@ -175,7 +175,7 @@ class MainWindow(tk.Tk):
 
     def open_add_transaction(self):
         AddTransactionWindow(
-            master=self, on_save_callback=self.transactions_panel.refresh_transactions
+            master=self
         )
 
     def open_wallet(self):
