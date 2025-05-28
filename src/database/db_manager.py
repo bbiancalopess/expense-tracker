@@ -9,6 +9,7 @@ class DatabaseManager:
     def __get_connection(self):
         """Returns a database connection"""
         conn = sqlite3.connect(self._db_file)
+        conn.execute("PRAGMA foreign_keys = ON;")
         # Configure to return rows as dicts
         conn.row_factory = sqlite3.Row
         return conn

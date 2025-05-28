@@ -29,7 +29,7 @@ def up():
         total_installments INTEGER DEFAULT 1,
         category_id INTEGER,
         payment_method_id INTEGER,
-        FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id) ON DELETE SET NULL
+        FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id) ON DELETE SET NULL,
         FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
     );
 
