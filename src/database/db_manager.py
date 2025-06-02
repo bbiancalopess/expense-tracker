@@ -3,7 +3,7 @@ from typing import Optional
 
 
 class DatabaseManager:
-    def __init__(self, db_file="src/database/expense-tracker-dev.db"):
+    def __init__(self, db_file="src/database/expense-tracker-test.db"):
         self._db_file = db_file
 
     def __get_connection(self):

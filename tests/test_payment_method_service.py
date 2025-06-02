@@ -27,32 +27,32 @@ def test_full_payment_service_workflow(payment_service):
     assert debit_id is not None
 
     # 3. Test get_all_payments
-    payments = payment_service.get_all_payments()
+    payments = payment_service.get_all_payment_methods()
     assert len(payments) == 2
     assert any(p.name == "Cartão Inter" for p in payments)
 
     # 4. Test get_payment_by_id
-    inter = payment_service.get_payment_by_id(credit_id)
+    inter = payment_service.get_payment_method_by_id(credit_id)
     assert inter.credit_limit == 5000
 
     # 5. Test process_payment (credit)
-    assert payment_service.process_payment(credit_id, 100) is True
-    updated_credit = payment_service.get_payment_by_id(credit_id)
+    assert payment_service.process_payment(credit_id, 100, True) is True
+    updated_credit = payment_service.get_payment_method_by_id(credit_id)
     assert updated_credit.balance == 100
 
     # 6. Test process_payment (debit)
-    assert payment_service.process_payment(debit_id, 200) is True
-    updated_debit = payment_service.get_payment_by_id(debit_id)
+    assert payment_service.process_payment(debit_id, 200, True) is True
+    updated_debit = payment_service.get_payment_method_by_id(debit_id)
     assert updated_debit.balance == 800
 
     # 7. Test process_payment with invalid value
-    assert payment_service.process_payment(credit_id, -50) is False
+    assert payment_service.process_payment(credit_id, -50, True) is False
 
     # 8. Test update_payment
     inter.name = "Inter Black"
-    assert payment_service.update_payment(inter) is True
-    assert payment_service.get_payment_by_id(credit_id).name == "Inter Black"
+    assert payment_service.update_payment_method(inter) is True
+    assert payment_service.get_payment_method_by_id(credit_id).name == "Inter Black"
 
     # 9. Test delete_payment
-    assert payment_service.delete_payment(debit_id) is True
-    assert len(payment_service.get_all_payments()) == 1
+    assert payment_service.delete_payment_method(debit_id) is True
+    assert len(payment_service.get_all_payment_methods()) == 1

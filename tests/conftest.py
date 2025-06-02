@@ -117,35 +117,35 @@ def transaction_test_db():
 
 # fixtures for payment_method
 @pytest.fixture
-def payment_repo(payment_test_db):
-    return PaymentMethodRepository(payment_test_db)
+def payment_repo():
+    return PaymentMethodRepository()
 
 
 @pytest.fixture
-def payment_service(payment_repo):
-    return PaymentMethodService(payment_repo)
+def payment_service():
+    return PaymentMethodService()
 
 
 # fixtures for category
 @pytest.fixture
-def category_repo(category_test_db):
-    return CategoryRepository(category_test_db)
+def category_repo():
+    return CategoryRepository()
 
 
 @pytest.fixture
-def category_service(category_repo):
-    return CategoryService(category_repo)
+def category_service():
+    return CategoryService()
 
 
 # fixtures for transaction
 @pytest.fixture
-def transaction_repo(transaction_test_db):
-    return TransactionRepository(transaction_test_db)
+def transaction_repo():
+    return TransactionRepository()
 
 
 @pytest.fixture
-def transaction_service(transaction_repo):
-    return TransactionService(transaction_repo)
+def transaction_service():
+    return TransactionService()
 
 
 @pytest.fixture
