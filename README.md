@@ -37,10 +37,8 @@ python3 main.py
 
 ## Funcionalidades
 - [ ] Cadastro de transações ( Receitas ou Despesas )
-- [ ] Parcelamento automático de despesas
 - [ ] Atualização automática de saldo
 - [ ] Visualização de saldo geral e por forma de pagamento
-- [ ] Relatório financeiro por categoria e mês
 - [ ] Geração de gráficos financeiros
 - [ ] Cadastro de contas como forma de pagamento
 
