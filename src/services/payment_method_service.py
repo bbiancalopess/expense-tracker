@@ -113,7 +113,7 @@ class PaymentMethodService:
             print(f"Error deleting payment method {payment_id}: {e}")
             return False
 
-    def process_payment(self, payment_id: int, amount: float) -> bool:
+    def process_payment(self, payment_id: int, amount: float, is_expense: bool) -> bool:
         """
         Processa um pagamento usando um método específico.
 
@@ -135,7 +135,7 @@ class PaymentMethodService:
                 return False
 
             try:
-                success = payment.process_payment(amount)
+                success = payment.process_payment(amount, is_expense)
                 if success:
                     self.update_payment_method(payment)
                 return success

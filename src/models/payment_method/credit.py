@@ -74,7 +74,7 @@ class Credit(PaymentMethod):
         """Calcula o limite disponível (limite total - saldo utilizado)"""
         return self._credit_limit - self._balance
 
-    def process_payment(self, amount: float) -> bool:
+    def process_payment(self, amount: float, is_expense: bool) -> bool:
         """
         Processa um pagamento no crédito.
 
@@ -88,10 +88,13 @@ class Credit(PaymentMethod):
             ValueError: Se valor for inválido
         """
         if amount <= 0:
-            raise ValueError("Valor do pagamento deve ser positivo")
-        if amount > self.available_limit:
-            return False  # Limite insuficiente
-        self._balance += amount  # Atualiza o saldo utilizado
+            raise ValueError("Valor da transação deve ser positivo")
+        if is_expense:
+            if amount > self.available_limit:
+                return False  # Limite insuficiente
+            self._balance += amount  # Atualiza o saldo utilizado
+        else:
+            self._balance -= amount
         return True  # Pagamento aprovado
 
     def to_dict(self) -> dict[str, any]:

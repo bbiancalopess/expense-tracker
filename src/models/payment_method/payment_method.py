@@ -75,7 +75,7 @@ class PaymentMethod(ABC):
         }
 
     @abstractmethod
-    def process_payment(self, amount: float) -> bool:
+    def process_payment(self, amount: float, is_expense: bool) -> bool:
         """Processa um pagamento com o valor especificado"""
         pass
 

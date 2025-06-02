@@ -19,7 +19,7 @@ class Debit(PaymentMethod):
         super().__init__(id, name, balance)
         self._payment_type = PaymentType.DEBIT  # Define tipo específico
 
-    def process_payment(self, amount: float) -> bool:
+    def process_payment(self, amount: float, is_expense: bool) -> bool:
         """
         Processa pagamento no débito.
 
@@ -33,10 +33,13 @@ class Debit(PaymentMethod):
             ValueError: Se valor for inválido
         """
         if amount <= 0:
-            raise ValueError("Valor do pagamento deve ser positivo")
-        if amount > self._balance:
-            return False  # Saldo insuficiente
-        self._balance -= amount  # Debita do saldo
+            raise ValueError("Valor da transação deve ser positivo")
+        if is_expense:
+            if amount > self._balance:
+                return False  # Saldo insuficiente
+            self._balance -= amount  # Debita do saldo
+        else:
+            self._balance += amount
         return True  # Pagamento aprovado
 
     @classmethod

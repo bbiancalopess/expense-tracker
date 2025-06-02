@@ -135,7 +135,7 @@ class TransactionsPanel(tk.Frame):
                 ),
                 style="TLabel",
             ).grid(row=i, column=3, sticky="w", padx=5, pady=2)
-            ttk.Label(table, text=f"R${transaction.amount}", style="TLabel").grid(
+            ttk.Label(table, text=f"R${transaction.amount:.2f}", style="TLabel").grid(
                 row=i, column=4, sticky="e", padx=5, pady=2
             )
 

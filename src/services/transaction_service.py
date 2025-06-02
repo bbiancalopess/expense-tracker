@@ -4,6 +4,7 @@ from src.models.transaction.expense import Expense
 from src.services.payment_method_service import PaymentMethodService
 from src.services.category_service import CategoryService
 from typing import Optional
+from src.models.transaction.transaction_type import TransactionType
 
 
 class TransactionService:
@@ -49,6 +50,10 @@ class TransactionService:
                 )
                 transaction.payment_method = saved_payment
         try:
+            self.payment_service.process_payment(
+                transaction.payment_method.id, transaction.amount,
+                transaction.transaction_type == TransactionType.EXPENSE
+            )
             transaction_id = self.repo.save(transaction)
             if transaction_id:
                 transaction._id = transaction_id

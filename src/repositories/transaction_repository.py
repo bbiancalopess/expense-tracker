@@ -245,7 +245,7 @@ class TransactionRepository:
 
             results = self.db.select_one(query, params)
 
-            return results["name"] if results.get("name") else ""
+            return results["name"] if results and results.get("name") else ""
 
         except Exception as e:
             raise Exception(f"Error getting current month transaction totals: {e}")
