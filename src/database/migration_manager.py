@@ -40,7 +40,7 @@ class MigrationManager:
 
     def __load_migration_module(self, migration_name: str):
         """Loads the migration module"""
-        module_name = f"database.migrations.{migration_name}"
+        module_name = f"src.database.migrations.{migration_name}"
         try:
             return importlib.import_module(module_name)
         except ImportError as e:

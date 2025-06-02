@@ -8,7 +8,7 @@ class Credit(PaymentMethod):
     Implementação concreta de PaymentMethod para cartões de crédito.
     Adiciona funcionalidades específicas como limite de crédito e datas de vencimento.
     """
-    
+
     def __init__(
         self,
         id: Optional[int] = None,
@@ -20,7 +20,7 @@ class Credit(PaymentMethod):
     ):
         """
         Inicializa um cartão de crédito com características específicas.
-        
+
         Args:
             credit_limit: Limite total do cartão
             closing_day: Dia de fechamento da fatura
@@ -74,24 +74,27 @@ class Credit(PaymentMethod):
         """Calcula o limite disponível (limite total - saldo utilizado)"""
         return self._credit_limit - self._balance
 
-    def process_payment(self, amount: float) -> bool:
+    def process_payment(self, amount: float, is_expense: bool) -> bool:
         """
         Processa um pagamento no crédito.
-        
+
         Args:
             amount: Valor a ser cobrado
-            
+
         Returns:
             bool: True se pagamento foi aprovado, False se recusado
-            
+
         Raises:
             ValueError: Se valor for inválido
         """
         if amount <= 0:
-            raise ValueError("Valor do pagamento deve ser positivo")
-        if amount > self.available_limit:
-            return False  # Limite insuficiente
-        self._balance += amount  # Atualiza o saldo utilizado
+            raise ValueError("Valor da transação deve ser positivo")
+        if is_expense:
+            if amount > self.available_limit:
+                return False  # Limite insuficiente
+            self._balance += amount  # Atualiza o saldo utilizado
+        else:
+            self._balance -= amount
         return True  # Pagamento aprovado
 
     def to_dict(self) -> dict[str, any]:
@@ -107,7 +110,7 @@ class Credit(PaymentMethod):
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, any]) -> 'Credit':
+    def from_dict(cls, data: dict[str, any]) -> "Credit":
         """Cria instância de Credit a partir de dicionário"""
         return cls(
             id=data.get("id"),

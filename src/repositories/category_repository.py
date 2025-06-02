@@ -9,14 +9,14 @@ class CategoryRepository:
     Responsável por mediar a comunicação entre os objetos Category e o banco.
     """
 
-    def __init__(self, db: DatabaseManager):
+    def __init__(self):
         """
         Inicializa o repositório com uma instância do gerenciador de banco de dados.
 
         Args:
             db: Gerenciador de conexão com o banco de dados
         """
-        self.db = db
+        self.db = DatabaseManager()
 
     def get_all(self) -> list[Category]:
         """

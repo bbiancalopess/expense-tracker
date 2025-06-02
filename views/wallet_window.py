@@ -1,60 +1,69 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from views.add_account_window import AddAccountWindow
+from src.services.payment_method_service import PaymentMethodService
+from src.services.transaction_service import TransactionService
+from src.models.payment_method.payment_type import PaymentType
+
 
 class WalletWindow(tk.Frame):
     def __init__(self, parent, color_palette):
         super().__init__(parent, bg=color_palette["light_gray"])
         self.color_palette = color_palette
         self.parent = parent
-        
-        # Atributos de dados
-        self.saldo = 0.0
-        self.total_receitas = 0.0
-        self.total_despesas = 0.0
-        self.contas = []
-        self.cartoes = []
 
-        self.load_data_from_db()
+        self.payment_method_service = PaymentMethodService()
+        self.transactions_service = TransactionService()
         self.create_widgets()
 
-    def load_data_from_db(self):
-        """Método para carregar dados do banco"""
-        self.saldo = 1800.00
-        self.total_receitas = 3000.00
-        self.total_despesas = 1200.00
-        self.contas = [
-            ("Inter", 500.00),
-            ("Nubank", 500.00),
-            ("C6", 800.00),
-        ]
-        self.cartoes = [
-            ("Inter crédito", "Fecha em 01/mar", 1200.00),
-        ]
-
     def open_add_account_window(self):
-        if hasattr(self, '_add_window') and self._add_window.winfo_exists():
+        if hasattr(self, "_add_window") and self._add_window.winfo_exists():
             self._add_window.lift()
             return
-        
-        self._add_window = AddAccountWindow(master=self.parent)
+
+        self._add_window = AddAccountWindow(master=self.parent, wallet_window=self)
         self._add_window.grab_set()
 
     def create_widgets(self):
+        contas = self.payment_method_service.get_all_payment_methods()
+        incomes_and_expenses = (
+            self.transactions_service.find_current_month_totals_by_payment_method()
+        )
+        total_balance = 0.0
+        total_incomes = 0.0
+        total_expenses = 0.0
+
+        for c in contas:
+            if c.payment_type == PaymentType.DEBIT:
+                total_balance += c.balance
+
+        for payment_id, values in incomes_and_expenses.items():
+            total_incomes += values.get("income", 0.0)
+            total_expenses += values.get("expense", 0.0)
+
         # Frame principal que ocupa todo o espaço
         main_frame = tk.Frame(self, bg=self.color_palette["light_gray"])
         main_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
         # Header com saldo e valores
-        header_frame = tk.Frame(main_frame, bg=self.color_palette["white"], padx=20, pady=15)
+        header_frame = tk.Frame(
+            main_frame, bg=self.color_palette["white"], padx=20, pady=15
+        )
         header_frame.pack(fill="x", pady=(0, 20))
 
         # Saldo total
         saldo_frame = tk.Frame(header_frame, bg=self.color_palette["white"])
         saldo_frame.pack(side="left", fill="y")
 
-        ttk.Label(saldo_frame, text="Saldo em conta", style="Title.TLabel", background=self.color_palette["white"] ).pack(anchor="w")
-        ttk.Label(saldo_frame, text=f"R$ {self.saldo:,.2f}", style="TLabel").pack(anchor="w", pady=(5, 0))
+        ttk.Label(
+            saldo_frame,
+            text="Saldo em conta",
+            style="Title.TLabel",
+            background=self.color_palette["white"],
+        ).pack(anchor="w")
+        ttk.Label(saldo_frame, text=f"R$ {total_balance:,.2f}", style="TLabel").pack(
+            anchor="w", pady=(5, 0)
+        )
 
         # Receitas e Despesas
         values_frame = tk.Frame(header_frame, bg=self.color_palette["white"])
@@ -64,21 +73,31 @@ class WalletWindow(tk.Frame):
         receitas_frame = tk.Frame(values_frame, bg=self.color_palette["white"])
         receitas_frame.pack(side="left", padx=20)
         ttk.Label(receitas_frame, text="Receitas", style="TLabel").pack(anchor="e")
-        ttk.Label(receitas_frame, text=f"R$ {self.total_receitas:,.2f}", style="TLabel").pack(anchor="e")
+        ttk.Label(receitas_frame, text=f"R$ {total_incomes:,.2f}", style="TLabel").pack(
+            anchor="e"
+        )
 
         # Despesas
         despesas_frame = tk.Frame(values_frame, bg=self.color_palette["white"])
         despesas_frame.pack(side="left", padx=20)
         ttk.Label(despesas_frame, text="Despesas", style="TLabel").pack(anchor="e")
-        ttk.Label(despesas_frame, text=f"R$ {self.total_despesas:,.2f}", style="TLabel").pack(anchor="e")
+        ttk.Label(
+            despesas_frame, text=f"R$ {total_expenses:,.2f}", style="TLabel"
+        ).pack(anchor="e")
 
         # Frame para conteúdo rolável
-        canvas = tk.Canvas(main_frame, bg=self.color_palette["light_gray"], highlightthickness=0)
+        canvas = tk.Canvas(
+            main_frame, bg=self.color_palette["light_gray"], highlightthickness=0
+        )
         scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=canvas.yview)
         scrollable_frame = tk.Frame(canvas, bg=self.color_palette["light_gray"])
 
-        scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-        canvas_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        scrollable_frame.bind(
+            "<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        canvas_window = canvas.create_window(
+            (0, 0), window=scrollable_frame, anchor="nw"
+        )
 
         def resize_scrollable_frame(event):
             canvas.itemconfig(canvas_window, width=event.width)
@@ -86,48 +105,162 @@ class WalletWindow(tk.Frame):
         canvas.bind("<Configure>", resize_scrollable_frame)
         canvas.configure(yscrollcommand=scrollbar.set)
 
-
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
         # Botão Adicionar Conta
-        add_btn = ttk.Button(scrollable_frame, text="Adicionar conta", style="TButton", command=self.open_add_account_window)
-        add_btn.pack(padx=15, pady=(0, 20), anchor="e") 
+        add_btn = ttk.Button(
+            scrollable_frame,
+            text="Adicionar conta",
+            style="TButton",
+            command=self.open_add_account_window,
+        )
+        add_btn.pack(padx=15, pady=(0, 20), anchor="e")
 
         # Contas
-        contas_frame = tk.Frame(scrollable_frame, bg=self.color_palette["white"], padx=20, pady=15)
-        contas_frame.pack(fill="both", pady=(0, 10), expand=True) 
+        contas_frame = tk.Frame(
+            scrollable_frame, bg=self.color_palette["white"], padx=20, pady=15
+        )
+        contas_frame.pack(fill="both", pady=(0, 10), expand=True)
 
-        ttk.Label(contas_frame, text="Contas", style="Title.TLabel", background=self.color_palette["white"]).pack(anchor="w")
+        ttk.Label(
+            contas_frame,
+            text="Contas Débito",
+            style="Title.TLabel",
+            background=self.color_palette["white"],
+        ).pack(anchor="w")
 
-        for banco, valor in self.contas:
-            conta_item = tk.Frame(contas_frame, bg=self.color_palette["light_gray"], padx=10, pady=8)
-            conta_item.pack(fill="x", pady=5, expand=True)
-            ttk.Label(conta_item, text=banco, style="TLabel", background=self.color_palette["light_gray"]).pack(side="left")
-            ttk.Label(conta_item, text=f"R$ {valor:,.2f}", style="TLabel", background=self.color_palette["light_gray"]).pack(side="right")
+        total_amount_debit = 0.0
+        for conta in contas:
+            if conta.payment_type == PaymentType.DEBIT:
+                conta_item = tk.Frame(
+                    contas_frame, bg=self.color_palette["light_gray"], padx=10, pady=8
+                )
+                conta_item.pack(fill="x", pady=5, expand=True)
 
-        total_contas = sum(valor for _, valor in self.contas)
-        ttk.Label(contas_frame, text=f"Total R$ {total_contas:,.2f}", style="TLabel").pack(anchor="e", pady=5)
+                name_frame = tk.Frame(conta_item, bg=self.color_palette["light_gray"])
+                name_frame.pack(side="left", fill="x", expand=True)
+                ttk.Label(
+                    name_frame,
+                    text=conta.name,
+                    style="TLabel",
+                    background=self.color_palette["light_gray"],
+                ).pack(side="left")
+
+                ttk.Label(
+                    conta_item,
+                    text=f"R$ {conta.balance:,.2f}",
+                    style="TLabel",
+                    background=self.color_palette["light_gray"],
+                ).pack(side="left")
+                # Botão de ícone de lixeira
+                trash_icon = tk.PhotoImage(file="views/icons/trash.png").subsample(
+                    40, 40
+                )
+                trash_button = tk.Button(
+                    conta_item,
+                    image=trash_icon,
+                    relief="flat",
+                    cursor="hand2",
+                    command=lambda c_id=conta.id: self.remove_account(c_id),
+                    background=self.color_palette["light_gray"],
+                )
+                trash_button.image = trash_icon
+                trash_button.pack(side="right", padx=10)
+                total_amount_debit += conta.balance
+
+        ttk.Label(
+            contas_frame, text=f"Total R$ {total_amount_debit:,.2f}", style="TLabel"
+        ).pack(anchor="e", pady=5)
 
         # Cartões
-        cartoes_frame = tk.Frame(scrollable_frame, bg=self.color_palette["white"], padx=20, pady=15)
-        cartoes_frame.pack(fill="both", expand=True) 
+        cartoes_frame = tk.Frame(
+            scrollable_frame, bg=self.color_palette["white"], padx=20, pady=15
+        )
+        cartoes_frame.pack(fill="both", expand=True)
 
-        ttk.Label(cartoes_frame, text="Cartões de crédito", style="Title.TLabel", background=self.color_palette["white"]).pack(anchor="w")
+        ttk.Label(
+            cartoes_frame,
+            text="Contas Crédito",
+            style="Title.TLabel",
+            background=self.color_palette["white"],
+        ).pack(anchor="w")
 
-        for nome, vencimento, valor in self.cartoes:
-            cartao_item = tk.Frame(cartoes_frame, bg=self.color_palette["light_gray"], padx=10, pady=8)
-            cartao_item.pack(fill="x", pady=5, expand=True)
-            
-            info_frame = tk.Frame(cartao_item, bg=self.color_palette["light_gray"])
-            info_frame.pack(side="left", fill="x", expand=True)
-            ttk.Label(info_frame, text=nome, style="TLabel", background=self.color_palette["light_gray"]).pack(anchor="w")
-            ttk.Label(info_frame, text=vencimento, style="TLabel", background=self.color_palette["light_gray"]).pack(anchor="w")
-            
-            ttk.Label(cartao_item, text=f"R$ {valor:,.2f}", style="TLabel", background=self.color_palette["light_gray"]).pack(side="right")
+        total_amount_credit = 0.0
+        for conta in contas:
+            if conta.payment_type == PaymentType.CREDIT:
+                cartao_item = tk.Frame(
+                    cartoes_frame, bg=self.color_palette["light_gray"], padx=10, pady=8
+                )
+                cartao_item.pack(fill="x", pady=5, expand=True)
 
-        total_cartoes = sum(valor for _, _, valor in self.cartoes)
-        ttk.Label(cartoes_frame, text=f"Total R$ {total_cartoes:,.2f}", style="TLabel").pack(anchor="e", pady=5)
+                info_frame = tk.Frame(cartao_item, bg=self.color_palette["light_gray"])
+                info_frame.pack(side="left", fill="x", expand=True)
+                ttk.Label(
+                    info_frame,
+                    text=conta.name,
+                    style="TLabel",
+                    background=self.color_palette["light_gray"],
+                ).pack(anchor="w")
+                ttk.Label(
+                    info_frame,
+                    text=f"Limite R$ {conta.credit_limit:,.2f}",
+                    style="TLabel",
+                    background=self.color_palette["light_gray"],
+                ).pack(anchor="w")
+                ttk.Label(
+                    info_frame,
+                    text=f"Vencimento dia {conta.due_day}",
+                    style="TLabel",
+                    background=self.color_palette["light_gray"],
+                ).pack(anchor="w")
+                ttk.Label(
+                    info_frame,
+                    text=f"Fechamento dia {conta.closing_day}",
+                    style="TLabel",
+                    background=self.color_palette["light_gray"],
+                ).pack(anchor="w")
+                ttk.Label(
+                    cartao_item,
+                    text=f"R$ {conta.balance:,.2f}",
+                    style="TLabel",
+                    background=self.color_palette["light_gray"],
+                ).pack(side="left")
+                # Botão de ícone de lixeira
+                trash_icon = tk.PhotoImage(file="views/icons/trash.png").subsample(
+                    40, 40
+                )
+                trash_button = tk.Button(
+                    cartao_item,
+                    image=trash_icon,
+                    relief="flat",
+                    cursor="hand2",
+                    command=lambda c_id=conta.id: self.remove_account(c_id),
+                    background=self.color_palette["light_gray"],
+                )
+                trash_button.image = trash_icon
+                trash_button.pack(side="right", padx=10)
+                total_amount_credit += conta.balance
+
+        ttk.Label(
+            cartoes_frame, text=f"Total R$ {total_amount_credit:,.2f}", style="TLabel"
+        ).pack(anchor="e", pady=5)
 
         # Configurar scroll com mouse
-        canvas.bind_all("<MouseWheel>", lambda e: canvas.yview_scroll(int(-1*(e.delta/120)), "units"))
+        canvas.bind_all(
+            "<MouseWheel>",
+            lambda e: canvas.yview_scroll(int(-1 * (e.delta / 120)), "units"),
+        )
+
+    def refresh(self):
+        for widget in self.winfo_children():
+            widget.destroy()
+        self.create_widgets()
+
+    def remove_account(self, account_id):
+        confirm = tk.messagebox.askyesno(
+            "Confirmação", "Tem certeza que deseja remover esta conta?"
+        )
+        if confirm:
+            self.payment_method_service.delete_payment_method(account_id)
+            self.refresh()

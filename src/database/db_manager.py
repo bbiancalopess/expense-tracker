@@ -3,12 +3,13 @@ from typing import Optional
 
 
 class DatabaseManager:
-    def __init__(self, db_file="src/database/expense-tracker-dev.db"):
+    def __init__(self, db_file="src/database/expense-tracker.db"):
         self._db_file = db_file
 
     def __get_connection(self):
         """Returns a database connection"""
         conn = sqlite3.connect(self._db_file)
+        conn.execute("PRAGMA foreign_keys = ON;")
         # Configure to return rows as dicts
         conn.row_factory = sqlite3.Row
         return conn

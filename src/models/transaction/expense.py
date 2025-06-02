@@ -32,9 +32,15 @@ class Expense(Transaction):
             total_installments: Total de parcelas (1 se não parcelado)
         """
         # Validações específicas de despesa
-        if current_installment <= 0 or total_installments <= 0:
+        if (current_installment and current_installment <= 0) or (
+            total_installments and total_installments <= 0
+        ):
             raise ValueError("Número de parcelas deve ser positivo")
-        if current_installment > total_installments:
+        if (
+            current_installment
+            and total_installments
+            and current_installment > total_installments
+        ):
             raise ValueError("Parcela atual não pode ser maior que o total")
 
         super().__init__(id, amount, description, date, payment_method)
@@ -78,6 +84,11 @@ class Expense(Transaction):
     @classmethod
     def from_dict(cls, data: dict[str, any]) -> "Expense":
         """Cria Expense a partir de dicionário"""
+        payment_method = data.get("payment_method")
+
+        if not payment_method and "payment_method_id" in data:
+            payment_method = PaymentMethod(id=data["payment_method_id"])
+
         return cls(
             id=data.get("id"),
             amount=data["amount"],

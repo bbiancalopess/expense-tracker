@@ -75,12 +75,12 @@ class PaymentMethod(ABC):
         }
 
     @abstractmethod
-    def process_payment(self, amount: float) -> bool:
+    def process_payment(self, amount: float, is_expense: bool) -> bool:
         """Processa um pagamento com o valor especificado"""
         pass
 
     @classmethod
     @abstractmethod
-    def from_dict(cls, data: dict[str, any]) -> "PaymentMethod":
+    def from_dict(cls, data: dict[str, any]):
         """Cria instância a partir de dicionário (desserialização)"""
         pass
