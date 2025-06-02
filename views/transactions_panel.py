@@ -78,34 +78,6 @@ class TransactionsPanel(tk.Frame):
         dates_frame = tk.Frame(self.header_frame, bg=self.color_palette["white"])
         dates_frame.pack(side="right", anchor="e")
 
-        # Campo "De"
-        ttk.Label(dates_frame, text="De:", style="TLabel").pack(
-            side="left", padx=(0, 5)
-        )
-        self.date_entry = DateEntry(
-            dates_frame,
-            font=("Segoe UI", 10),
-            background=self.color_palette["medium_blue"],
-            foreground=self.color_palette["white"],
-            borderwidth=2,
-            date_pattern="dd/mm/yyyy",
-        )
-        self.date_entry.pack(side="left", padx=(0, 15))
-
-        # Campo "Até"
-        ttk.Label(dates_frame, text="Até:", style="TLabel").pack(
-            side="left", padx=(0, 5)
-        )
-        self.date_entry_until = DateEntry(
-            dates_frame,
-            font=("Segoe UI", 10),
-            background=self.color_palette["medium_blue"],
-            foreground=self.color_palette["white"],
-            borderwidth=2,
-            date_pattern="dd/mm/yyyy",
-        )
-        self.date_entry_until.pack(side="left")
-
     def create_transaction_list(self):
         """Cria a lista de transações"""
         # Tabela com headers e valores

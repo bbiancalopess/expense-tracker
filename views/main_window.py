@@ -9,7 +9,7 @@ from views.transactions_panel import TransactionsPanel
 class MainWindow(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Expense Tracker")
+        self.title("Organizador de Despesas")
         self.geometry("1000x650")
         self.resizable(True, True)
         self.minsize(800, 600)
@@ -109,7 +109,7 @@ class MainWindow(tk.Tk):
 
         logo_label = tk.Label(
             sidebar,
-            text="Expense Tracker",
+            text="Organizador de \n Despesas",
             bg=self.color_palette["sidebar"],
             fg=self.color_palette["white"],
             font=("Segoe UI", 14, "bold"),
